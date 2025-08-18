@@ -57,7 +57,7 @@ export const Header = ({ onImportData, onLogout, userEmail }: HeaderProps) => {
                  <img 
                    src={currentLogo} 
                    alt="Oliveira Martelinho de Ouro" 
-                   className="h-16 w-16 object-contain rounded-lg"
+                   className="h-24 w-24 object-contain rounded-lg"
                  />
                </div>
               <Button

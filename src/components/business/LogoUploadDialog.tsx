@@ -23,8 +23,14 @@ export const LogoUploadDialog = ({ open, onOpenChange, onLogoChange, currentLogo
     if (file) {
       if (file.type.startsWith('image/')) {
         setSelectedFile(file);
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
+        
+        // Converter para base64 para persistir no localStorage
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64String = e.target?.result as string;
+          setPreviewUrl(base64String);
+        };
+        reader.readAsDataURL(file);
       } else {
         toast({
           title: "Erro",
@@ -41,9 +47,11 @@ export const LogoUploadDialog = ({ open, onOpenChange, onLogoChange, currentLogo
       localStorage.setItem('custom-logo', previewUrl);
       toast({
         title: "Logo atualizada!",
-        description: "Sua nova logo foi aplicada com sucesso."
+        description: "Sua nova logo foi aplicada com sucesso e será mantida entre sessões."
       });
       onOpenChange(false);
+      setPreviewUrl("");
+      setSelectedFile(null);
     }
   };
 
