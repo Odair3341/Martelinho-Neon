@@ -173,11 +173,143 @@ const Index = () => {
   const handleUpdateData = async (newData: BusinessData) => {
     setBusinessData(newData);
     
-    // Auto-save to Supabase when data changes
+    // Save changes to Supabase
     if (user) {
-      setTimeout(() => {
-        loadUserData(user.id);
-      }, 100);
+      try {
+        // Handle servicos - check for new ones and updates
+        const currentServiceIds = businessData.servicos.map(s => s.id);
+        
+        for (const servico of newData.servicos) {
+          if (servico.id && currentServiceIds.includes(servico.id)) {
+            // Update existing service
+            await supabase
+              .from('servicos')
+              .update({
+                data_servico: servico.data_servico,
+                cliente_id: servico.cliente_id,
+                veiculo: servico.veiculo,
+                placa: servico.placa,
+                valor_bruto: servico.valor_bruto,
+                porcentagem_comissao: servico.porcentagem_comissao,
+                observacao: servico.observacao,
+                valor_pago: servico.valor_pago,
+                quitado: servico.quitado,
+                comissao_recebida: servico.comissao_recebida
+              })
+              .eq('id', servico.id)
+              .eq('user_id', user.id);
+          } else if (!currentServiceIds.includes(servico.id)) {
+            // Insert new service
+            const { data: insertedService } = await supabase
+              .from('servicos')
+              .insert({
+                data_servico: servico.data_servico,
+                cliente_id: servico.cliente_id,
+                veiculo: servico.veiculo,
+                placa: servico.placa,
+                valor_bruto: servico.valor_bruto,
+                porcentagem_comissao: servico.porcentagem_comissao,
+                observacao: servico.observacao,
+                valor_pago: servico.valor_pago,
+                quitado: servico.quitado,
+                comissao_recebida: servico.comissao_recebida,
+                user_id: user.id
+              })
+              .select()
+              .single();
+              
+            // Update local data with the real ID from database
+            if (insertedService) {
+              const updatedServicos = newData.servicos.map(s => 
+                s.id === servico.id ? { ...s, id: insertedService.id } : s
+              );
+              setBusinessData({ ...newData, servicos: updatedServicos });
+            }
+          }
+        }
+        
+        // Handle clientes
+        const currentClientIds = businessData.clientes.map(c => c.id);
+        
+        for (const cliente of newData.clientes) {
+          if (cliente.id && currentClientIds.includes(cliente.id)) {
+            // Update existing client
+            await supabase
+              .from('clientes')
+              .update({
+                nome: cliente.nome
+              })
+              .eq('id', cliente.id)
+              .eq('user_id', user.id);
+          } else if (!currentClientIds.includes(cliente.id)) {
+            // Insert new client
+            const { data: insertedClient } = await supabase
+              .from('clientes')
+              .insert({
+                nome: cliente.nome,
+                user_id: user.id
+              })
+              .select()
+              .single();
+              
+            // Update local data with the real ID from database
+            if (insertedClient) {
+              const updatedClientes = newData.clientes.map(c => 
+                c.id === cliente.id ? { ...c, id: insertedClient.id } : c
+              );
+              setBusinessData({ ...newData, clientes: updatedClientes });
+            }
+          }
+        }
+        
+        // Handle despesas
+        const currentExpenseIds = businessData.despesas.map(d => d.id);
+        
+        for (const despesa of newData.despesas) {
+          if (despesa.id && currentExpenseIds.includes(despesa.id)) {
+            // Update existing expense
+            await supabase
+              .from('despesas')
+              .update({
+                descricao: despesa.descricao,
+                valor: despesa.valor,
+                data_vencimento: despesa.data_vencimento,
+                pago: despesa.pago
+              })
+              .eq('id', despesa.id)
+              .eq('user_id', user.id);
+          } else if (!currentExpenseIds.includes(despesa.id)) {
+            // Insert new expense
+            const { data: insertedExpense } = await supabase
+              .from('despesas')
+              .insert({
+                descricao: despesa.descricao,
+                valor: despesa.valor,
+                data_vencimento: despesa.data_vencimento,
+                pago: despesa.pago,
+                user_id: user.id
+              })
+              .select()
+              .single();
+              
+            // Update local data with the real ID from database
+            if (insertedExpense) {
+              const updatedDespesas = newData.despesas.map(d => 
+                d.id === despesa.id ? { ...d, id: insertedExpense.id } : d
+              );
+              setBusinessData({ ...newData, despesas: updatedDespesas });
+            }
+          }
+        }
+        
+      } catch (error) {
+        console.error('Erro ao salvar dados:', error);
+        toast({
+          title: "Erro ao salvar",
+          description: "Houve um problema ao salvar os dados. Tente novamente.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
