@@ -2,6 +2,8 @@
 
 Sistema de gestão para oficina de martelinho de ouro com controle de clientes, serviços, despesas e comissões.
 
+Última atualização: 09/01/2025 - 09:15
+
 ## 🚀 Deploy no Netlify
 
 ### Pré-requisitos
