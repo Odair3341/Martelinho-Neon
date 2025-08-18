@@ -171,6 +171,7 @@ const Index = () => {
   };
 
   const handleUpdateData = async (newData: BusinessData) => {
+    console.log('handleUpdateData chamado com:', newData);
     setBusinessData(newData);
     
     // Save changes to Supabase
@@ -180,9 +181,11 @@ const Index = () => {
         const currentServiceIds = businessData.servicos.map(s => s.id);
         
         for (const servico of newData.servicos) {
-          if (servico.id && currentServiceIds.includes(servico.id)) {
+          // Check if service exists in database (has a valid numeric ID)
+          if (servico.id && typeof servico.id === 'number' && servico.id > 0) {
             // Update existing service
-            await supabase
+            console.log(`Atualizando serviço ID ${servico.id}, comissão_recebida: ${servico.comissao_recebida}`);
+            const { error } = await supabase
               .from('servicos')
               .update({
                 data_servico: servico.data_servico,
@@ -198,7 +201,11 @@ const Index = () => {
               })
               .eq('id', servico.id)
               .eq('user_id', user.id);
-          } else if (!currentServiceIds.includes(servico.id)) {
+              
+            if (error) {
+              console.error('Erro ao atualizar serviço:', error);
+            }
+          } else if (!servico.id || typeof servico.id !== 'number' || servico.id <= 0) {
             // Insert new service
             const { data: insertedService } = await supabase
               .from('servicos')
@@ -232,16 +239,20 @@ const Index = () => {
         const currentClientIds = businessData.clientes.map(c => c.id);
         
         for (const cliente of newData.clientes) {
-          if (cliente.id && currentClientIds.includes(cliente.id)) {
+          if (cliente.id && typeof cliente.id === 'number' && cliente.id > 0) {
             // Update existing client
-            await supabase
+            const { error } = await supabase
               .from('clientes')
               .update({
                 nome: cliente.nome
               })
               .eq('id', cliente.id)
               .eq('user_id', user.id);
-          } else if (!currentClientIds.includes(cliente.id)) {
+              
+            if (error) {
+              console.error('Erro ao atualizar cliente:', error);
+            }
+          } else if (!cliente.id || typeof cliente.id !== 'number' || cliente.id <= 0) {
             // Insert new client
             const { data: insertedClient } = await supabase
               .from('clientes')
@@ -266,9 +277,9 @@ const Index = () => {
         const currentExpenseIds = businessData.despesas.map(d => d.id);
         
         for (const despesa of newData.despesas) {
-          if (despesa.id && currentExpenseIds.includes(despesa.id)) {
+          if (despesa.id && typeof despesa.id === 'number' && despesa.id > 0) {
             // Update existing expense
-            await supabase
+            const { error } = await supabase
               .from('despesas')
               .update({
                 descricao: despesa.descricao,
@@ -278,7 +289,11 @@ const Index = () => {
               })
               .eq('id', despesa.id)
               .eq('user_id', user.id);
-          } else if (!currentExpenseIds.includes(despesa.id)) {
+              
+            if (error) {
+              console.error('Erro ao atualizar despesa:', error);
+            }
+          } else if (!despesa.id || typeof despesa.id !== 'number' || despesa.id <= 0) {
             // Insert new expense
             const { data: insertedExpense } = await supabase
               .from('despesas')
