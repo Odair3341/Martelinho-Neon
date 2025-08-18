@@ -14,7 +14,163 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clientes: {
+        Row: {
+          created_at: string | null
+          id: number
+          nome: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          nome: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          nome?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      comissoes: {
+        Row: {
+          created_at: string | null
+          data_recebimento: string
+          id: number
+          servico_id: number | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+          valor: number
+        }
+        Insert: {
+          created_at?: string | null
+          data_recebimento: string
+          id?: number
+          servico_id?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          valor: number
+        }
+        Update: {
+          created_at?: string | null
+          data_recebimento?: string
+          id?: number
+          servico_id?: number | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comissoes_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      despesas: {
+        Row: {
+          created_at: string | null
+          data_vencimento: string
+          descricao: string
+          id: number
+          pago: boolean | null
+          updated_at: string | null
+          user_id: string | null
+          valor: number
+        }
+        Insert: {
+          created_at?: string | null
+          data_vencimento: string
+          descricao: string
+          id?: number
+          pago?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+          valor: number
+        }
+        Update: {
+          created_at?: string | null
+          data_vencimento?: string
+          descricao?: string
+          id?: number
+          pago?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+          valor?: number
+        }
+        Relationships: []
+      }
+      servicos: {
+        Row: {
+          cliente_id: number | null
+          comissao_recebida: number | null
+          created_at: string | null
+          data_servico: string
+          id: number
+          observacao: string | null
+          placa: string
+          porcentagem_comissao: number
+          quitado: boolean | null
+          updated_at: string | null
+          user_id: string | null
+          valor_bruto: number
+          valor_pago: number | null
+          veiculo: string
+        }
+        Insert: {
+          cliente_id?: number | null
+          comissao_recebida?: number | null
+          created_at?: string | null
+          data_servico: string
+          id?: number
+          observacao?: string | null
+          placa: string
+          porcentagem_comissao: number
+          quitado?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+          valor_bruto: number
+          valor_pago?: number | null
+          veiculo: string
+        }
+        Update: {
+          cliente_id?: number | null
+          comissao_recebida?: number | null
+          created_at?: string | null
+          data_servico?: string
+          id?: number
+          observacao?: string | null
+          placa?: string
+          porcentagem_comissao?: number
+          quitado?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+          valor_bruto?: number
+          valor_pago?: number | null
+          veiculo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "servicos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
