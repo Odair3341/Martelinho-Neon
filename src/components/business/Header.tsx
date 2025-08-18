@@ -1,5 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Upload, Settings, Moon, Sun, Maximize, Edit } from "lucide-react";
+import { Upload, Settings, Moon, Sun, Maximize, Edit, LogOut, User } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/lib/theme-provider";
 import { useState, useEffect } from "react";
 import oliveiraLogo from "@/assets/oliveira-logo.png";
@@ -7,9 +14,11 @@ import { LogoUploadDialog } from "./LogoUploadDialog";
 
 interface HeaderProps {
   onImportData: () => void;
+  onLogout?: () => void;
+  userEmail?: string | null;
 }
 
-export const Header = ({ onImportData }: HeaderProps) => {
+export const Header = ({ onImportData, onLogout, userEmail }: HeaderProps) => {
   const { theme, setTheme } = useTheme();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showLogoDialog, setShowLogoDialog] = useState(false);
@@ -95,12 +104,29 @@ export const Header = ({ onImportData }: HeaderProps) => {
               {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </Button>
             
-            <Button 
-              variant="secondary"
-              className="bg-white/20 hover:bg-white/30 text-primary-foreground border-white/30"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
+            {userEmail && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="secondary"
+                    className="bg-white/20 hover:bg-white/30 text-primary-foreground border-white/30"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    <span className="hidden md:inline max-w-32 truncate">{userEmail}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem className="text-sm text-muted-foreground">
+                    {userEmail}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={onLogout} className="text-destructive">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </div>

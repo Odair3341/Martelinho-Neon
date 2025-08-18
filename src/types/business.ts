@@ -31,6 +31,9 @@ export interface Comissao {
   valor: number;
   data_recebimento: string;
   status: 'pendente' | 'recebido' | 'atrasado';
+  created_at?: string;
+  updated_at?: string;
+  user_id?: string;
 }
 
 export interface BusinessData {

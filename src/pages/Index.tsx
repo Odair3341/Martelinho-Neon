@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { BusinessData } from "@/types/business";
 import { Header } from "@/components/business/Header";
@@ -11,9 +11,17 @@ import { ComissoesTab } from "@/components/business/ComissoesTab";
 import { RelatoriosTab } from "@/components/business/RelatoriosTab";
 import { BackupTab } from "@/components/business/BackupTab";
 import { ImportDialog } from "@/components/business/ImportDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { User, Session } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showImportDialog, setShowImportDialog] = useState(false);
   
@@ -33,16 +41,152 @@ const Index = () => {
     }
   });
 
-  const handleImportData = (newData: BusinessData) => {
-    setBusinessData(newData);
-    toast({
-      title: "Dados importados com sucesso!",
-      description: `${newData.clientes.length} clientes e ${newData.servicos.length} serviços foram carregados.`,
+  // Authentication and data loading
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // User logged in, load their data
+          setTimeout(() => {
+            loadUserData(session.user.id);
+          }, 0);
+        } else {
+          // User logged out, redirect to auth
+          navigate('/auth');
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+      
+      if (session?.user) {
+        loadUserData(session.user.id);
+      } else {
+        navigate('/auth');
+      }
     });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const loadUserData = async (userId: string) => {
+    try {
+      // Load all user data from Supabase
+      const [clientesResult, servicosResult, despesasResult, comissoesResult] = await Promise.all([
+        supabase.from('clientes').select('*').eq('user_id', userId).order('nome'),
+        supabase.from('servicos').select('*').eq('user_id', userId).order('data_servico', { ascending: false }),
+        supabase.from('despesas').select('*').eq('user_id', userId).order('data_vencimento'),
+        supabase.from('comissoes').select('*').eq('user_id', userId).order('data_recebimento', { ascending: false })
+      ]);
+
+      if (clientesResult.error) throw clientesResult.error;
+      if (servicosResult.error) throw servicosResult.error;
+      if (despesasResult.error) throw despesasResult.error;
+      if (comissoesResult.error) throw comissoesResult.error;
+
+      const loadedData: BusinessData = {
+        clientes: clientesResult.data || [],
+        servicos: servicosResult.data || [],
+        despesas: despesasResult.data || [],
+        comissoes: (comissoesResult.data || []).map(c => ({
+          ...c,
+          status: c.status as 'pendente' | 'recebido' | 'atrasado'
+        })),
+        metadata: {
+          exportDate: new Date().toISOString(),
+          version: "1.0",
+          totalClientes: clientesResult.data?.length || 0,
+          totalServicos: servicosResult.data?.length || 0,
+          totalDespesas: despesasResult.data?.length || 0,
+          totalComissoes: comissoesResult.data?.length || 0
+        }
+      };
+
+      setBusinessData(loadedData);
+      
+      if (loadedData.clientes.length > 0 || loadedData.servicos.length > 0) {
+        toast({
+          title: "Dados carregados!",
+          description: `${loadedData.clientes.length} clientes e ${loadedData.servicos.length} serviços carregados.`,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error loading data:', error);
+      toast({
+        title: "Erro ao carregar dados",
+        description: "Não foi possível carregar seus dados.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleUpdateData = (newData: BusinessData) => {
+  const handleImportData = async (newData: BusinessData) => {
+    if (!user) return;
+    
+    try {
+      // Clear existing data and import new data
+      await Promise.all([
+        supabase.from('clientes').delete().eq('user_id', user.id),
+        supabase.from('servicos').delete().eq('user_id', user.id),
+        supabase.from('despesas').delete().eq('user_id', user.id),
+        supabase.from('comissoes').delete().eq('user_id', user.id)
+      ]);
+
+      // Insert new data with user_id
+      const clientesWithUserId = newData.clientes.map(cliente => ({ ...cliente, user_id: user.id }));
+      const servicosWithUserId = newData.servicos.map(servico => ({ ...servico, user_id: user.id }));
+      const despesasWithUserId = newData.despesas.map(despesa => ({ ...despesa, user_id: user.id }));
+      const comissoesWithUserId = newData.comissoes.map(comissao => ({ ...comissao, user_id: user.id }));
+
+      await Promise.all([
+        clientesWithUserId.length > 0 ? supabase.from('clientes').insert(clientesWithUserId) : Promise.resolve(),
+        servicosWithUserId.length > 0 ? supabase.from('servicos').insert(servicosWithUserId) : Promise.resolve(),
+        despesasWithUserId.length > 0 ? supabase.from('despesas').insert(despesasWithUserId) : Promise.resolve(),
+        comissoesWithUserId.length > 0 ? supabase.from('comissoes').insert(comissoesWithUserId) : Promise.resolve()
+      ]);
+
+      // Reload data from database
+      await loadUserData(user.id);
+      
+      toast({
+        title: "Dados importados com sucesso!",
+        description: `${newData.clientes.length} clientes e ${newData.servicos.length} serviços foram salvos no Supabase.`,
+      });
+    } catch (error: any) {
+      console.error('Error importing data:', error);
+      toast({
+        title: "Erro ao importar dados",
+        description: "Não foi possível salvar os dados importados.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdateData = async (newData: BusinessData) => {
     setBusinessData(newData);
+    
+    // Auto-save to Supabase when data changes
+    if (user) {
+      setTimeout(() => {
+        loadUserData(user.id);
+      }, 100);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: "Logout realizado",
+      description: "Você foi desconectado com sucesso.",
+    });
   };
 
   const renderActiveTab = () => {
@@ -66,9 +210,28 @@ const Index = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Carregando seus dados...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to auth
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <Header onImportData={() => setShowImportDialog(true)} />
+      <Header 
+        onImportData={() => setShowImportDialog(true)} 
+        onLogout={handleLogout}
+        userEmail={user.email}
+      />
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
       
       <main className="container mx-auto px-6 py-8">
