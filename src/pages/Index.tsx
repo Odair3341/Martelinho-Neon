@@ -171,7 +171,6 @@ const Index = () => {
   };
 
   const handleUpdateData = async (newData: BusinessData) => {
-    console.log('handleUpdateData chamado com:', newData);
     setBusinessData(newData);
     
     // Save changes to Supabase

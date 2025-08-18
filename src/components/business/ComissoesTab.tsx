@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BusinessData, Servico } from "@/types/business";
-import { DollarSign, TrendingUp, Clock, CheckCircle, RefreshCw } from "lucide-react";
+import { DollarSign, TrendingUp, Clock, CheckCircle, RefreshCw, Undo2 } from "lucide-react";
 import { ReceiveCommissionDialog } from "./ReceiveCommissionDialog";
 
 interface ComissoesTabProps {
@@ -78,6 +78,33 @@ export const ComissoesTab = ({ data, onUpdateData }: ComissoesTabProps) => {
     };
 
     onUpdateData(updatedData);
+  };
+
+  const desfazerRecebimento = async (servicoId: number) => {
+    if (confirm('Tem certeza que deseja desfazer o recebimento desta comissão?')) {
+      const servicosAtualizados = data.servicos.map(servico => {
+        if (servico.id === servicoId) {
+          return {
+            ...servico,
+            comissao_recebida: 0,
+            quitado: false
+          };
+        }
+        return servico;
+      });
+
+      const updatedData = {
+        ...data,
+        servicos: servicosAtualizados,
+        metadata: {
+          ...data.metadata,
+          // Force update timestamp to trigger re-render
+          lastUpdate: new Date().toISOString()
+        }
+      };
+
+      onUpdateData(updatedData);
+    }
   };
 
   return (
@@ -241,26 +268,39 @@ export const ComissoesTab = ({ data, onUpdateData }: ComissoesTabProps) => {
                         </Badge>
                       </td>
                       <td className="py-3">
-                        {comissaoTotal > comissaoRecebida && (
-                          <div className="flex space-x-2">
+                        <div className="flex space-x-2">
+                          {comissaoTotal > comissaoRecebida && (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={() => setReceivingService(servico)}
+                                variant="outline"
+                                className="border-success text-success hover:bg-success hover:text-white"
+                              >
+                                <DollarSign className="h-4 w-4 mr-1" />
+                                Parcial
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => marcarComoRecebido(servico.id)}
+                                className="bg-success hover:bg-success/90"
+                              >
+                                Tudo
+                              </Button>
+                            </>
+                          )}
+                          {comissaoRecebida > 0 && (
                             <Button
                               size="sm"
-                              onClick={() => setReceivingService(servico)}
+                              onClick={() => desfazerRecebimento(servico.id)}
                               variant="outline"
-                              className="border-success text-success hover:bg-success hover:text-white"
+                              className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                             >
-                              <DollarSign className="h-4 w-4 mr-1" />
-                              Parcial
+                              <Undo2 className="h-4 w-4 mr-1" />
+                              Desfazer
                             </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => marcarComoRecebido(servico.id)}
-                              className="bg-success hover:bg-success/90"
-                            >
-                              Tudo
-                            </Button>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
