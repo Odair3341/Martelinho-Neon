@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { BusinessData, Servico } from "@/types/business";
 import { DollarSign, TrendingUp, Clock, CheckCircle, RefreshCw, Undo2 } from "lucide-react";
 import { ReceiveCommissionDialog } from "./ReceiveCommissionDialog";
+import { UndoCommissionReceiptDialog } from "./UndoCommissionReceiptDialog";
 
 interface ComissoesTabProps {
   data: BusinessData;
@@ -13,6 +14,7 @@ interface ComissoesTabProps {
 
 export const ComissoesTab = ({ data, onUpdateData }: ComissoesTabProps) => {
   const [receivingService, setReceivingService] = useState<Servico | null>(null);
+  const [undoingService, setUndoingService] = useState<Servico | null>(null);
 
   // Função para arredondar valores monetários e evitar problemas de precisão
   const roundCurrency = (value: number) => {
@@ -80,31 +82,29 @@ export const ComissoesTab = ({ data, onUpdateData }: ComissoesTabProps) => {
     onUpdateData(updatedData);
   };
 
-  const desfazerRecebimento = async (servicoId: number) => {
-    if (confirm('Tem certeza que deseja desfazer o recebimento desta comissão?')) {
-      const servicosAtualizados = data.servicos.map(servico => {
-        if (servico.id === servicoId) {
-          return {
-            ...servico,
-            comissao_recebida: 0,
-            quitado: false
-          };
-        }
-        return servico;
-      });
+  const handleUndoReceipt = (servicoId: number) => {
+    const servicosAtualizados = data.servicos.map(servico => {
+      if (servico.id === servicoId) {
+        return {
+          ...servico,
+          comissao_recebida: 0,
+          quitado: false
+        };
+      }
+      return servico;
+    });
 
-      const updatedData = {
-        ...data,
-        servicos: servicosAtualizados,
-        metadata: {
-          ...data.metadata,
-          // Force update timestamp to trigger re-render
-          lastUpdate: new Date().toISOString()
-        }
-      };
+    const updatedData = {
+      ...data,
+      servicos: servicosAtualizados,
+      metadata: {
+        ...data.metadata,
+        // Force update timestamp to trigger re-render
+        lastUpdate: new Date().toISOString()
+      }
+    };
 
-      onUpdateData(updatedData);
-    }
+    onUpdateData(updatedData);
   };
 
   return (
@@ -292,7 +292,7 @@ export const ComissoesTab = ({ data, onUpdateData }: ComissoesTabProps) => {
                           {comissaoRecebida > 0 && (
                             <Button
                               size="sm"
-                              onClick={() => desfazerRecebimento(servico.id)}
+                              onClick={() => setUndoingService(servico)}
                               variant="outline"
                               className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                             >
@@ -317,6 +317,12 @@ export const ComissoesTab = ({ data, onUpdateData }: ComissoesTabProps) => {
         service={receivingService}
         data={data}
         onUpdateData={onUpdateData}
+      />
+      <UndoCommissionReceiptDialog
+        open={!!undoingService}
+        onOpenChange={(open) => !open && setUndoingService(null)}
+        service={undoingService}
+        onConfirm={handleUndoReceipt}
       />
     </div>
   );
