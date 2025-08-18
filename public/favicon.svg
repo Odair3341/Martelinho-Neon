@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#1a365d" stroke="#2d3748" stroke-width="2"/>
+  
+  <!-- Hammer icon -->
+  <g transform="translate(16, 16)">
+    <!-- Hammer head -->
+    <rect x="8" y="12" width="16" height="8" rx="2" fill="#ffd700" stroke="#e6c200" stroke-width="1"/>
+    <!-- Hammer handle -->
+    <rect x="14" y="20" width="4" height="20" rx="2" fill="#8b4513" stroke="#654321" stroke-width="1"/>
+    <!-- Hammer claw -->
+    <path d="M8 12 L4 8 L6 6 L10 10 Z" fill="#ffd700" stroke="#e6c200" stroke-width="1"/>
+  </g>
+  
+  <!-- Company initials -->
+  <text x="32" y="52" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffd700">OMO</text>
+</svg>
