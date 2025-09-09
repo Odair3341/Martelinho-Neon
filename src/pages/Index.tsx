@@ -245,6 +245,52 @@ const Index = () => {
     }
   };
 
+  const handleMigrateOldCommissions = async () => {
+    if (!user) return;
+
+    toast({ title: "Iniciando migração...", description: "Analisando dados antigos. Por favor, aguarde." });
+
+    try {
+      const existingCommissionServiceIds = new Set(businessData.comissoes.map(c => c.servico_id));
+      
+      const servicesToMigrate = businessData.servicos.filter(s => 
+        s.comissao_recebida > 0 && !existingCommissionServiceIds.has(s.id as number)
+      );
+
+      if (servicesToMigrate.length === 0) {
+        toast({ title: "Nenhum dado para migrar", description: "Todos os pagamentos antigos já possuem um histórico." });
+        return;
+      }
+
+      const newCommissions = servicesToMigrate.map(s => ({
+        servico_id: s.id,
+        valor: s.comissao_recebida,
+        data_recebimento: s.data_servico, // Using service date as placeholder
+        status: 'recebido',
+        user_id: user.id
+      }));
+
+      const { error } = await supabase.from('comissoes').insert(newCommissions as any);
+
+      if (error) throw error;
+
+      await loadSharedData();
+
+      toast({ 
+        title: "Migração Concluída!", 
+        description: `${servicesToMigrate.length} registros de pagamentos antigos foram migrados com sucesso.`
+      });
+
+    } catch (error: any) {
+      console.error("Erro durante a migração:", error);
+      toast({ 
+        title: "Erro na Migração", 
+        description: "Ocorreu um erro ao migrar os dados antigos.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast({
@@ -268,7 +314,7 @@ const Index = () => {
       case "relatorios":
         return <RelatoriosTab data={businessData} />;
       case "backup":
-        return <BackupTab data={businessData} onImportData={() => setShowImportDialog(true)} />;
+        return <BackupTab data={businessData} onImportData={() => setShowImportDialog(true)} onMigrate={handleMigrateOldCommissions} />;
       default:
         return <Dashboard data={businessData} />;
     }

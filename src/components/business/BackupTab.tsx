@@ -8,10 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 interface BackupTabProps {
   data: BusinessData;
   onImportData: () => void;
+  onMigrate: () => void;
 }
 
-export const BackupTab = ({ data, onImportData }: BackupTabProps) => {
+export const BackupTab = ({ data, onImportData, onMigrate }: BackupTabProps) => {
   const { toast } = useToast();
+
 
   const exportData = () => {
     try {
@@ -147,6 +149,26 @@ export const BackupTab = ({ data, onImportData }: BackupTabProps) => {
             >
               <Upload className="h-4 w-4 mr-2" />
               Selecionar Arquivo de Backup
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Migrar Dados Antigos */}
+        <Card className="shadow-medium border-blue-500/50">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-blue-600">
+              <Database className="h-5 w-5" />
+              <span>Migrar Pagamentos Antigos</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Esta ação criará registros de histórico para pagamentos de comissões feitos antes da atualização do sistema.
+              A data de recebimento será a data do serviço.
+            </p>
+            <Button onClick={onMigrate} variant="outline" className="w-full border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white">
+              <Upload className="h-4 w-4 mr-2" />
+              Iniciar Migração
             </Button>
           </CardContent>
         </Card>
