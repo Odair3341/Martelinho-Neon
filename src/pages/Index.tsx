@@ -196,6 +196,55 @@ const Index = () => {
     }
   };
 
+  const handleReceiveCommission = async (service: Servico, amount: number) => {
+    if (!user) return;
+
+    const comissaoTotal = Math.round(service.valor_bruto * service.porcentagem_comissao) / 100;
+    const novaComissaoRecebida = Math.round((service.comissao_recebida + amount) * 100) / 100;
+
+    try {
+      // 1. Update the service with the new received amount
+      const { error: serviceError } = await supabase
+        .from('servicos')
+        .update({ 
+          comissao_recebida: novaComissaoRecebida,
+          quitado: novaComissaoRecebida >= comissaoTotal
+        })
+        .eq('id', service.id);
+
+      if (serviceError) throw serviceError;
+
+      // 2. Insert a new record into the commissions table
+      const { error: commissionError } = await supabase
+        .from('comissoes')
+        .insert({
+          servico_id: service.id,
+          valor: amount,
+          data_recebimento: new Date().toISOString(),
+          status: 'recebido',
+          user_id: user.id
+        });
+      
+      if (commissionError) throw commissionError;
+
+      // 3. Reload all data to reflect changes
+      await loadSharedData();
+
+      toast({
+        title: "Recebimento confirmado!",
+        description: `Valor de ${amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} recebido.`
+      });
+
+    } catch (error: any) {
+      console.error('Erro ao receber comissão:', error);
+      toast({
+        title: "Erro ao processar recebimento",
+        description: "Não foi possível salvar o recebimento. Verifique o console.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast({
@@ -215,7 +264,7 @@ const Index = () => {
       case "despesas":
         return <DespesasTab data={businessData} onUpdateData={handleUpdateData} />;
       case "comissoes":
-        return <ComissoesTab data={businessData} onUpdateData={handleUpdateData} />;
+        return <ComissoesTab data={businessData} onUpdateData={handleUpdateData} onReceiveCommission={handleReceiveCommission} />;
       case "relatorios":
         return <RelatoriosTab data={businessData} />;
       case "backup":

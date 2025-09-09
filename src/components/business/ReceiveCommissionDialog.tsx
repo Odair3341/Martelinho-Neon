@@ -10,16 +10,14 @@ interface ReceiveCommissionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   service: Servico | null;
-  data: BusinessData;
-  onUpdateData: (newData: BusinessData) => void;
+  onConfirm: (service: Servico, amount: number) => void;
 }
 
 export const ReceiveCommissionDialog = ({ 
   open, 
   onOpenChange, 
   service, 
-  data, 
-  onUpdateData 
+  onConfirm
 }: ReceiveCommissionDialogProps) => {
   const [valorReceber, setValorReceber] = useState("");
 
@@ -41,24 +39,14 @@ export const ReceiveCommissionDialog = ({
     const valor = roundCurrency(parseFloat(valorReceber));
     const comissaoTotal = roundCurrency((service.valor_bruto * service.porcentagem_comissao) / 100);
     const comissaoAtual = roundCurrency(service.comissao_recebida);
-    const novaComissaoRecebida = roundCurrency(comissaoAtual + valor);
 
     // Não pode receber mais que o total da comissão
-    if (novaComissaoRecebida > comissaoTotal) {
+    if (roundCurrency(comissaoAtual + valor) > comissaoTotal) {
       alert(`Valor excede o máximo da comissão. Máximo disponível: ${formatCurrency(comissaoTotal - comissaoAtual)}`);
       return;
     }
 
-    const updatedService: Servico = {
-      ...service,
-      comissao_recebida: novaComissaoRecebida,
-      quitado: novaComissaoRecebida >= comissaoTotal
-    };
-
-    const updatedServices = data.servicos.map(s => s.id === service.id ? updatedService : s);
-    const updatedData = { ...data, servicos: updatedServices };
-
-    onUpdateData(updatedData);
+    onConfirm(service, valor);
     setValorReceber("");
     onOpenChange(false);
   };

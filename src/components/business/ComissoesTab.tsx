@@ -10,9 +10,10 @@ import { UndoCommissionReceiptDialog } from "./UndoCommissionReceiptDialog";
 interface ComissoesTabProps {
   data: BusinessData;
   onUpdateData: (newData: BusinessData) => void;
+  onReceiveCommission: (service: Servico, amount: number) => Promise<void>;
 }
 
-export const ComissoesTab = ({ data, onUpdateData }: ComissoesTabProps) => {
+export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: ComissoesTabProps) => {
   const [receivingService, setReceivingService] = useState<Servico | null>(null);
   const [undoingService, setUndoingService] = useState<Servico | null>(null);
 
@@ -61,25 +62,13 @@ export const ComissoesTab = ({ data, onUpdateData }: ComissoesTabProps) => {
   const servicosComComissao = data.servicos.filter(s => s.comissao_recebida > 0);
   const servicosPendentes = data.servicos.filter(s => s.comissao_recebida === 0);
 
-  const marcarComoRecebido = (servicoId: number) => {
-    const servicosAtualizados = data.servicos.map(servico => {
-      if (servico.id === servicoId) {
-        const comissaoTotal = roundCurrency(servico.valor_bruto * servico.porcentagem_comissao / 100);
-        return {
-          ...servico,
-          comissao_recebida: comissaoTotal,
-          quitado: true
-        };
-      }
-      return servico;
-    });
-
-    const updatedData = {
-      ...data,
-      servicos: servicosAtualizados
-    };
-
-    onUpdateData(updatedData);
+  const marcarComoRecebido = (servico: Servico) => {
+    const comissaoTotal = roundCurrency(servico.valor_bruto * servico.porcentagem_comissao / 100);
+    const valorReceber = roundCurrency(comissaoTotal - servico.comissao_recebida);
+    
+    if (valorReceber > 0) {
+      onReceiveCommission(servico, valorReceber);
+    }
   };
 
   const handleUndoReceipt = (servicoId: number) => {
@@ -282,7 +271,7 @@ export const ComissoesTab = ({ data, onUpdateData }: ComissoesTabProps) => {
                               </Button>
                               <Button
                                 size="sm"
-                                onClick={() => marcarComoRecebido(servico.id)}
+                                onClick={() => marcarComoRecebido(servico)}
                                 className="bg-success hover:bg-success/90"
                               >
                                 Tudo
@@ -315,8 +304,7 @@ export const ComissoesTab = ({ data, onUpdateData }: ComissoesTabProps) => {
         open={!!receivingService}
         onOpenChange={(open) => !open && setReceivingService(null)}
         service={receivingService}
-        data={data}
-        onUpdateData={onUpdateData}
+        onConfirm={onReceiveCommission}
       />
       <UndoCommissionReceiptDialog
         open={!!undoingService}

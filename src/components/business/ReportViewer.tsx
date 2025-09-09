@@ -266,16 +266,33 @@ export const ReportViewer = ({ open, onOpenChange, data, reportType, dataInicio,
   };
 
   const renderRecebimentosReport = () => {
-    const comissoesRecebidas = data.comissoes.filter(c => {
-      const recebido = c.status === 'recebido';
-      if (!dataInicio || !dataFim) return recebido;
-      const dataRecebimento = new Date(c.data_recebimento);
-      const inicio = new Date(dataInicio);
-      const fim = new Date(dataFim);
-      return recebido && dataRecebimento >= inicio && dataRecebimento <= fim;
+    // 1. Filter commissions that are received
+    const receivedCommissions = data.comissoes.filter(c => c.status === 'recebido');
+
+    // 2. Filter by date range if provided
+    const filteredByDate = receivedCommissions.filter(c => {
+      if (!dataInicio || !dataFim) return true; // If no dates, include all received
+      // Normalize dates to avoid timezone issues. Compare YYYY-MM-DD strings.
+      const receiptDate = c.data_recebimento.substring(0, 10);
+      return receiptDate >= dataInicio && receiptDate <= dataFim;
     });
 
-    const totalRecebido = comissoesRecebidas.reduce((acc, c) => acc + c.valor, 0);
+    // 3. Group by date and sum the values
+    const groupedByDate = filteredByDate.reduce((acc, comissao) => {
+      const date = comissao.data_recebimento.substring(0, 10);
+      if (!acc[date]) {
+        acc[date] = 0;
+      }
+      acc[date] += comissao.valor;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // 4. Convert the grouped object to an array and sort by date
+    const dailyTotals = Object.entries(groupedByDate)
+      .map(([date, total]) => ({ date, total }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    const grandTotal = dailyTotals.reduce((acc, item) => acc + item.total, 0);
 
     return (
       <div className="space-y-6">
@@ -291,7 +308,7 @@ export const ReportViewer = ({ open, onOpenChange, data, reportType, dataInicio,
           <CardContent className="p-4">
             <div className="text-center">
               <p className="text-sm text-muted-foreground">Total Recebido no Período</p>
-              <p className="text-3xl font-bold" style={{ color: 'hsl(var(--success))' }}>{formatCurrency(totalRecebido)}</p>
+              <p className="text-3xl font-bold" style={{ color: 'hsl(var(--success))' }}>{formatCurrency(grandTotal)}</p>
             </div>
           </CardContent>
         </Card>
@@ -299,27 +316,27 @@ export const ReportViewer = ({ open, onOpenChange, data, reportType, dataInicio,
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Data Recebimento</TableHead>
-              <TableHead>Valor</TableHead>
-              <TableHead>Cliente</TableHead>
-              <TableHead>Veículo</TableHead>
+              <TableHead>Data do Recebimento</TableHead>
+              <TableHead className="text-right">Valor Total Recebido no Dia</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {comissoesRecebidas.map((comissao) => {
-              const servico = data.servicos.find(s => s.id === comissao.servico_id);
-              const cliente = servico ? data.clientes.find(c => c.id === servico.cliente_id) : null;
-              return (
-                <TableRow key={comissao.id}>
-                  <TableCell>{formatDate(comissao.data_recebimento)}</TableCell>
-                  <TableCell className="font-medium" style={{ color: 'hsl(var(--success))' }}>
-                    {formatCurrency(comissao.valor)}
+            {dailyTotals.length > 0 ? (
+              dailyTotals.map(({ date, total }) => (
+                <TableRow key={date}>
+                  <TableCell>{formatDate(date)}</TableCell>
+                  <TableCell className="text-right font-medium" style={{ color: 'hsl(var(--success))' }}>
+                    {formatCurrency(total)}
                   </TableCell>
-                  <TableCell>{cliente?.nome || 'Não encontrado'}</TableCell>
-                  <TableCell>{servico?.veiculo} - {servico?.placa || 'Não encontrado'}</TableCell>
                 </TableRow>
-              );
-            })}
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={2} className="text-center text-muted-foreground">
+                  Nenhum recebimento encontrado para o período selecionado.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
