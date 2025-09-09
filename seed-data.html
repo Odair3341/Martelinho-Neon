@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Seed Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Inserindo dados de exemplo...</h1>
+    <div id="status">Carregando...</div>
+    
+    <script>
+        const { createClient } = supabase;
+        
+        const SUPABASE_URL = "https://fdavzmkbbyhqljkcjwmq.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkYXZ6bWtiYnlocWxqa2Nqd21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxOTU0NTQsImV4cCI6MjA3MDc3MTQ1NH0.28W1TceOuTZlnp0yVF4WMDMAOPcmA5BA45XavXUmZGo";
+        
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        async function insertSeedData() {
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                statusDiv.innerHTML = 'Inserindo clientes...';
+                
+                // Insert clients
+                const { data: clientesData, error: clientesError } = await supabaseClient
+                    .from('clientes')
+                    .insert([
+                        { nome: 'João Silva', user_id: null },
+                        { nome: 'Maria Santos', user_id: null },
+                        { nome: 'Pedro Oliveira', user_id: null },
+                        { nome: 'Ana Costa', user_id: null },
+                        { nome: 'Carlos Ferreira', user_id: null }
+                    ])
+                    .select();
+                
+                if (clientesError) {
+                    console.error('Erro ao inserir clientes:', clientesError);
+                    statusDiv.innerHTML = 'Erro ao inserir clientes: ' + clientesError.message;
+                    return;
+                }
+                
+                statusDiv.innerHTML = 'Inserindo serviços...';
+                
+                // Insert services
+                const { data: servicosData, error: servicosError } = await supabaseClient
+                    .from('servicos')
+                    .insert([
+                        {
+                            data_servico: '2024-01-15',
+                            veiculo: 'Honda Civic',
+                            placa: 'ABC-1234',
+                            valor_bruto: 1500.00,
+                            porcentagem_comissao: 10.00,
+                            observacao: 'Reparo completo da lataria',
+                            valor_pago: 1500.00,
+                            quitado: true,
+                            comissao_recebida: 150.00,
+                            cliente_id: 1,
+                            user_id: null
+                        },
+                        {
+                            data_servico: '2024-01-20',
+                            veiculo: 'Toyota Corolla',
+                            placa: 'DEF-5678',
+                            valor_bruto: 800.00,
+                            porcentagem_comissao: 12.00,
+                            observacao: 'Pintura do para-choque',
+                            valor_pago: 800.00,
+                            quitado: true,
+                            comissao_recebida: 96.00,
+                            cliente_id: 2,
+                            user_id: null
+                        },
+                        {
+                            data_servico: '2024-01-25',
+                            veiculo: 'Volkswagen Gol',
+                            placa: 'GHI-9012',
+                            valor_bruto: 2200.00,
+                            porcentagem_comissao: 15.00,
+                            observacao: 'Funilaria e pintura lateral',
+                            valor_pago: 1100.00,
+                            quitado: false,
+                            comissao_recebida: 0.00,
+                            cliente_id: 3,
+                            user_id: null
+                        }
+                    ])
+                    .select();
+                
+                if (servicosError) {
+                    console.error('Erro ao inserir serviços:', servicosError);
+                    statusDiv.innerHTML = 'Erro ao inserir serviços: ' + servicosError.message;
+                    return;
+                }
+                
+                statusDiv.innerHTML = 'Inserindo despesas...';
+                
+                // Insert expenses
+                const { data: despesasData, error: despesasError } = await supabaseClient
+                    .from('despesas')
+                    .insert([
+                        {
+                            descricao: 'Aluguel da oficina',
+                            valor: 2500.00,
+                            data_vencimento: '2024-02-10',
+                            pago: true,
+                            user_id: null
+                        },
+                        {
+                            descricao: 'Energia elétrica',
+                            valor: 450.00,
+                            data_vencimento: '2024-02-15',
+                            pago: true,
+                            user_id: null
+                        },
+                        {
+                            descricao: 'Compra de tintas',
+                            valor: 800.00,
+                            data_vencimento: '2024-02-20',
+                            pago: false,
+                            user_id: null
+                        }
+                    ])
+                    .select();
+                
+                if (despesasError) {
+                    console.error('Erro ao inserir despesas:', despesasError);
+                    statusDiv.innerHTML = 'Erro ao inserir despesas: ' + despesasError.message;
+                    return;
+                }
+                
+                statusDiv.innerHTML = 'Inserindo comissões...';
+                
+                // Insert commissions
+                const { data: comissoesData, error: comissoesError } = await supabaseClient
+                    .from('comissoes')
+                    .insert([
+                        {
+                            servico_id: 1,
+                            valor: 150.00,
+                            data_recebimento: '2024-01-16',
+                            status: 'recebido',
+                            user_id: null
+                        },
+                        {
+                            servico_id: 2,
+                            valor: 96.00,
+                            data_recebimento: '2024-01-21',
+                            status: 'recebido',
+                            user_id: null
+                        },
+                        {
+                            servico_id: 3,
+                            valor: 330.00,
+                            data_recebimento: '2024-02-10',
+                            status: 'pendente',
+                            user_id: null
+                        }
+                    ])
+                    .select();
+                
+                if (comissoesError) {
+                    console.error('Erro ao inserir comissões:', comissoesError);
+                    statusDiv.innerHTML = 'Erro ao inserir comissões: ' + comissoesError.message;
+                    return;
+                }
+                
+                statusDiv.innerHTML = 'Dados inseridos com sucesso! Você pode fechar esta página e acessar a aplicação.';
+                
+            } catch (error) {
+                console.error('Erro geral:', error);
+                statusDiv.innerHTML = 'Erro geral: ' + error.message;
+            }
+        }
+        
+        // Execute when page loads
+        window.onload = insertSeedData;
+    </script>
+</body>
+</html>

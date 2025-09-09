@@ -14,10 +14,12 @@ interface ReportViewerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   data: BusinessData;
-  reportType: 'comissoes' | 'extrato' | 'despesas' | null;
+  reportType: 'comissoes' | 'extrato' | 'despesas' | 'recebimentos' | null;
+  dataInicio?: string;
+  dataFim?: string;
 }
 
-export const ReportViewer = ({ open, onOpenChange, data, reportType }: ReportViewerProps) => {
+export const ReportViewer = ({ open, onOpenChange, data, reportType, dataInicio, dataFim }: ReportViewerProps) => {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const { toast } = useToast();
 
@@ -263,6 +265,67 @@ export const ReportViewer = ({ open, onOpenChange, data, reportType }: ReportVie
     );
   };
 
+  const renderRecebimentosReport = () => {
+    const comissoesRecebidas = data.comissoes.filter(c => {
+      const recebido = c.status === 'recebido';
+      if (!dataInicio || !dataFim) return recebido;
+      const dataRecebimento = new Date(c.data_recebimento);
+      const inicio = new Date(dataInicio);
+      const fim = new Date(dataFim);
+      return recebido && dataRecebimento >= inicio && dataRecebimento <= fim;
+    });
+
+    const totalRecebido = comissoesRecebidas.reduce((acc, c) => acc + c.valor, 0);
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold">Histórico de Recebimentos</h2>
+          <p className="text-muted-foreground">Oliveira Martelinho de Ouro</p>
+          <p className="text-sm text-muted-foreground">
+            Período de {dataInicio ? formatDate(dataInicio) : 'Início'} a {dataFim ? formatDate(dataFim) : 'Fim'}
+          </p>
+        </div>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">Total Recebido no Período</p>
+              <p className="text-3xl font-bold" style={{ color: 'hsl(var(--success))' }}>{formatCurrency(totalRecebido)}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Data Recebimento</TableHead>
+              <TableHead>Valor</TableHead>
+              <TableHead>Cliente</TableHead>
+              <TableHead>Veículo</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {comissoesRecebidas.map((comissao) => {
+              const servico = data.servicos.find(s => s.id === comissao.servico_id);
+              const cliente = servico ? data.clientes.find(c => c.id === servico.cliente_id) : null;
+              return (
+                <TableRow key={comissao.id}>
+                  <TableCell>{formatDate(comissao.data_recebimento)}</TableCell>
+                  <TableCell className="font-medium" style={{ color: 'hsl(var(--success))' }}>
+                    {formatCurrency(comissao.valor)}
+                  </TableCell>
+                  <TableCell>{cliente?.nome || 'Não encontrado'}</TableCell>
+                  <TableCell>{servico?.veiculo} - {servico?.placa || 'Não encontrado'}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
+
   const renderReport = () => {
     switch (reportType) {
       case 'comissoes':
@@ -271,6 +334,8 @@ export const ReportViewer = ({ open, onOpenChange, data, reportType }: ReportVie
         return renderExtratoReport();
       case 'despesas':
         return renderDespesasReport();
+      case 'recebimentos':
+        return renderRecebimentosReport();
       default:
         return null;
     }

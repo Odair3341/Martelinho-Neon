@@ -24,9 +24,11 @@ interface RelatoriosTabProps {
 
 export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
   const [showReportViewer, setShowReportViewer] = useState(false);
-  const [currentReportType, setCurrentReportType] = useState<'comissoes' | 'extrato' | 'despesas' | null>(null);
+  const [currentReportType, setCurrentReportType] = useState<'comissoes' | 'extrato' | 'despesas' | 'recebimentos' | null>(null);
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
   
-  const openReport = (type: 'comissoes' | 'extrato' | 'despesas') => {
+  const openReport = (type: 'comissoes' | 'extrato' | 'despesas' | 'recebimentos') => {
     setCurrentReportType(type);
     setShowReportViewer(true);
   };
@@ -120,11 +122,11 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="data_inicio">Data de Início</Label>
-              <Input id="data_inicio" type="date" />
+              <Input id="data_inicio" type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} />
             </div>
             <div>
               <Label htmlFor="data_fim">Data de Fim</Label>
-              <Input id="data_fim" type="date" />
+              <Input id="data_fim" type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} />
             </div>
             <div>
               <Label htmlFor="cliente_filtro">Cliente (Opcional)</Label>
@@ -267,6 +269,30 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                 </Button>
               </div>
             </div>
+
+            <div className="p-4 border rounded-lg">
+              <h3 className="font-semibold mb-2">Histórico de Recebimentos</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Visualize o histórico de comissões recebidas por data.
+              </p>
+              <div className="flex space-x-2">
+                <Button 
+                  className="flex-1"
+                  onClick={() => openReport('recebimentos')}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Visualizar
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    // Lógica de download para o histórico de recebimentos pode ser adicionada aqui
+                  }}
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -326,6 +352,8 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
         onOpenChange={setShowReportViewer}
         data={data}
         reportType={currentReportType}
+        dataInicio={dataInicio}
+        dataFim={dataFim}
       />
     </div>
   );
