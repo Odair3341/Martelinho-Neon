@@ -219,7 +219,7 @@ export const ComissoesTab = ({ data, onUpdateData }: ComissoesTabProps) => {
                 </tr>
               </thead>
               <tbody>
-                {[...data.servicos].sort((a, b) => new Date(b.data_servico).getTime() - new Date(a.data_servico).getTime()).map((servico) => {
+                {[...data.servicos].sort((a, b) => new Date(a.data_servico).getTime() - new Date(b.data_servico).getTime()).map((servico) => {
                   const comissaoTotal = roundCurrency(servico.valor_bruto * servico.porcentagem_comissao / 100);
                   const comissaoRecebida = roundCurrency(servico.comissao_recebida);
                   const isPendente = comissaoRecebida === 0;

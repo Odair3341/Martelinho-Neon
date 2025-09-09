@@ -11,10 +11,39 @@ import { useNavigate } from "react-router-dom";
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/`,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Email enviado!",
+        description: "Verifique seu email para redefinir sua senha.",
+      });
+      
+      setIsForgotPassword(false);
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: "Erro ao enviar email de recuperação. Verifique se o email está correto.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,10 +114,12 @@ const Auth = () => {
           </div>
           <div>
             <CardTitle className="text-2xl font-bold">
-              {isSignUp ? "Criar Conta" : "Entrar"}
+              {isForgotPassword ? "Recuperar Senha" : isSignUp ? "Criar Conta" : "Entrar"}
             </CardTitle>
             <CardDescription>
-              {isSignUp 
+              {isForgotPassword 
+                ? "Digite seu email para receber instruções de recuperação"
+                : isSignUp 
                 ? "Crie sua conta para gerenciar seus serviços" 
                 : "Entre para acessar seus dados"
               }
@@ -96,7 +127,7 @@ const Auth = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
+          <form onSubmit={isForgotPassword ? handleForgotPassword : handleAuth} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -110,19 +141,21 @@ const Auth = () => {
               />
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Sua senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                minLength={6}
-              />
-            </div>
+            {!isForgotPassword && (
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Sua senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  minLength={6}
+                />
+              </div>
+            )}
 
             <Button 
               type="submit" 
@@ -130,22 +163,41 @@ const Auth = () => {
               disabled={isLoading}
             >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSignUp ? "Criar Conta" : "Entrar"}
+              {isForgotPassword ? "Enviar Email" : isSignUp ? "Criar Conta" : "Entrar"}
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              {isSignUp ? "Já tem uma conta?" : "Não tem uma conta?"}{" "}
-              <button
-                type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-primary hover:underline font-medium"
-                disabled={isLoading}
-              >
-                {isSignUp ? "Fazer login" : "Criar conta"}
-              </button>
-            </p>
+          <div className="mt-6 text-center space-y-2">
+            {!isForgotPassword && (
+              <p className="text-sm text-muted-foreground">
+                {isSignUp ? "Já tem uma conta?" : "Não tem uma conta?"}{" "}
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-primary hover:underline font-medium"
+                  disabled={isLoading}
+                >
+                  {isSignUp ? "Fazer login" : "Criar conta"}
+                </button>
+              </p>
+            )}
+            
+            {!isSignUp && (
+              <p className="text-sm text-muted-foreground">
+                {isForgotPassword ? "Lembrou da senha?" : "Esqueceu sua senha?"}{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsForgotPassword(!isForgotPassword);
+                    setPassword("");
+                  }}
+                  className="text-primary hover:underline font-medium"
+                  disabled={isLoading}
+                >
+                  {isForgotPassword ? "Voltar ao login" : "Recuperar senha"}
+                </button>
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
