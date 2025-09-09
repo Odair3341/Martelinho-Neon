@@ -104,7 +104,7 @@ export const ServicosTab = ({ data, onUpdateData }: ServicosTabProps) => {
   };
 
   const servicosOrdenados = [...data.servicos].sort((a, b) => 
-    new Date(a.data_servico).getTime() - new Date(b.data_servico).getTime()
+    new Date(b.data_servico).getTime() - new Date(a.data_servico).getTime()
   );
 
   const deleteService = (serviceId: number) => {
