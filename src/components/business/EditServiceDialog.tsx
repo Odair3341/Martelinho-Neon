@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { BusinessData, Servico } from "@/types/business";
+import { fixTimezoneDate, formatDateForInput } from "@/lib/utils";
 
 interface EditServiceDialogProps {
   open: boolean;
@@ -36,7 +37,7 @@ export const EditServiceDialog = ({
   useEffect(() => {
     if (service) {
       setFormData({
-        data_servico: service.data_servico.split('T')[0],
+        data_servico: formatDateForInput(service.data_servico),
         cliente_id: service.cliente_id.toString(),
         veiculo: service.veiculo,
         placa: service.placa,
@@ -58,7 +59,7 @@ export const EditServiceDialog = ({
 
     const updatedService: Servico = {
       ...service,
-      data_servico: formData.data_servico,
+      data_servico: fixTimezoneDate(formData.data_servico),
       cliente_id: parseInt(formData.cliente_id),
       veiculo: formData.veiculo,
       placa: formData.placa.toUpperCase(),

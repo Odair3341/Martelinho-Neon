@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { BusinessData, Servico } from "@/types/business";
 import { Plus, Car, Calendar, Edit, Trash2 } from "lucide-react";
 import { EditServiceDialog } from "./EditServiceDialog";
+import { fixTimezoneDate } from "@/lib/utils";
 
 interface ServicosTabProps {
   data: BusinessData;
@@ -63,7 +64,7 @@ export const ServicosTab = ({ data, onUpdateData }: ServicosTabProps) => {
 
     const newService: Servico = {
       id: Date.now(),
-      data_servico: formData.data_servico,
+      data_servico: fixTimezoneDate(formData.data_servico),
       cliente_id: parseInt(formData.cliente_id),
       veiculo: formData.veiculo,
       placa: formData.placa.toUpperCase(),
