@@ -14,6 +14,12 @@ export function cn(...inputs: ClassValue[]) {
 export function fixTimezoneDate(dateString: string): string {
   if (!dateString) return dateString;
   
+  // Se a data já está no formato correto YYYY-MM-DD, retorna como está
+  // para evitar problemas de conversão de timezone
+  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return dateString;
+  }
+  
   // Cria uma data no timezone local para evitar problemas de UTC
   const [year, month, day] = dateString.split('-').map(Number);
   const localDate = new Date(year, month - 1, day);
