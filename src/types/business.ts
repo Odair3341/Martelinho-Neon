@@ -1,10 +1,10 @@
 export interface Cliente {
-  id: number;
+  id: number | string;
   nome: string;
 }
 
 export interface Servico {
-  id: number;
+  id: number | string;
   data_servico: string;
   veiculo: string;
   placa: string;
@@ -18,7 +18,7 @@ export interface Servico {
 }
 
 export interface Despesa {
-  id: number;
+  id: number | string;
   descricao: string;
   valor: number;
   data_vencimento: string;

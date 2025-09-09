@@ -29,7 +29,7 @@ export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
     }
     
     const newClient: Cliente = {
-      id: Date.now(),
+      id: 'temp_' + Date.now(),
       nome: newClienteName.trim()
     };
 
@@ -47,7 +47,7 @@ export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
     console.log("Cliente adicionado:", newClient);
   };
 
-  const getClientStats = (clienteId: number) => {
+  const getClientStats = (clienteId: number | string) => {
     const servicosCliente = data.servicos.filter(s => s.cliente_id === clienteId);
     const totalServicos = servicosCliente.length;
     const totalFaturamento = servicosCliente.reduce((acc, s) => acc + s.valor_bruto, 0);

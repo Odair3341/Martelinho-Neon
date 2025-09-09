@@ -1,0 +1,464 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Markdown Preview</title>
+      <style>
+        body {
+          font-family: sans-serif;
+          padding: 40px;
+          line-height: 1.6;
+          background: #fdfdfd;
+          color: #333;
+        }
+        pre {
+          background: #f4f4f4;
+          padding: 10px;
+          border-radius: 5px;
+          overflow-x: auto;
+        }
+        code {
+          font-family: monospace;
+          background: #eee;
+          padding: 2px 4px;
+        }
+        table {
+          border-collapse: collapse;
+          width: 100%;
+          margin-top: 20px;
+        }
+        th, td {
+          border: 1px solid #ccc;
+          padding: 8px 12px;
+          text-align: left;
+        }
+        th {
+          background-color: #f2f2f2;
+          font-weight: bold;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>TestSprite AI Testing Report (MCP)</h1>
+<hr>
+<h2>1️⃣ Document Metadata</h2>
+<ul>
+<li><strong>Project Name:</strong> Martelinho Lovable</li>
+<li><strong>Version:</strong> N/A</li>
+<li><strong>Date:</strong> 2025-09-09</li>
+<li><strong>Prepared by:</strong> TestSprite AI Team</li>
+</ul>
+<hr>
+<h2>2️⃣ Requirement Validation Summary</h2>
+<h3>Requirement: User Authentication</h3>
+<ul>
+<li><strong>Description:</strong> Sistema de autenticação com login/logout usando Supabase.</li>
+</ul>
+<h4>Test 1</h4>
+<ul>
+<li><strong>Test ID:</strong> TC001</li>
+<li><strong>Test Name:</strong> User Login Success</li>
+<li><strong>Test Code:</strong> <a href="./TC001_User_Login_Success.py">TC001_User_Login_Success.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/433a6d3e-529d-4638-af48-506f1012fc50</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Login funciona corretamente com credenciais válidas, indicando integração adequada do fluxo de autenticação.</li>
+</ul>
+<hr>
+<h4>Test 2</h4>
+<ul>
+<li><strong>Test ID:</strong> TC002</li>
+<li><strong>Test Name:</strong> User Login Failure with Invalid Credentials</li>
+<li><strong>Test Code:</strong> <a href="./TC002_User_Login_Failure_with_Invalid_Credentials.py">TC002_User_Login_Failure_with_Invalid_Credentials.py</a></li>
+<li><strong>Test Error:</strong> Login permite acesso com credenciais inválidas contrário ao comportamento esperado de falha de autenticação, representando um risco de segurança importante.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/0e7f6408-bccd-4731-b729-8b90507961b6</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Analysis / Findings:</strong> CRÍTICO: Sistema permite login com credenciais inválidas. Necessário corrigir lógica de validação de autenticação.</li>
+</ul>
+<hr>
+<h4>Test 3</h4>
+<ul>
+<li><strong>Test ID:</strong> TC003</li>
+<li><strong>Test Name:</strong> User Logout Successfully</li>
+<li><strong>Test Code:</strong> <a href="./TC003_User_Logout_Successfully.py">TC003_User_Logout_Successfully.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/53c768a3-1d81-48c1-9ccf-3e02e3694cab</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Logout funciona corretamente com redirecionamento apropriado, indicando terminação adequada da sessão.</li>
+</ul>
+<hr>
+<h3>Requirement: Client Management</h3>
+<ul>
+<li><strong>Description:</strong> Gerenciamento de clientes com registro e validação de dados.</li>
+</ul>
+<h4>Test 4</h4>
+<ul>
+<li><strong>Test ID:</strong> TC004</li>
+<li><strong>Test Name:</strong> Client Registration with Valid Data</li>
+<li><strong>Test Code:</strong> <a href="./TC004_Client_Registration_with_Valid_Data.py">TC004_Client_Registration_with_Valid_Data.py</a></li>
+<li><strong>Test Error:</strong> O formulário de registro de cliente permite apenas inserir o nome do cliente. Não há campos para informações de contato ou detalhes do veículo necessários.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/94fdcee8-605a-4fc9-8b83-25c04282bac4</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Analysis / Findings:</strong> Formulário de registro incompleto - faltam campos obrigatórios para informações de contato e veículo.</li>
+</ul>
+<hr>
+<h4>Test 5</h4>
+<ul>
+<li><strong>Test ID:</strong> TC005</li>
+<li><strong>Test Name:</strong> Client Registration with Missing Required Fields</li>
+<li><strong>Test Code:</strong> <a href="./TC005_Client_Registration_with_Missing_Required_Fields.py">TC005_Client_Registration_with_Missing_Required_Fields.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/9e39c213-36d2-4a70-866b-783ba325812c</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Validação de campos obrigatórios funciona corretamente, prevenindo registro com dados faltantes.</li>
+</ul>
+<hr>
+<h3>Requirement: Service Management</h3>
+<ul>
+<li><strong>Description:</strong> Criação e gerenciamento de serviços com cálculo automático de comissões.</li>
+</ul>
+<h4>Test 6</h4>
+<ul>
+<li><strong>Test ID:</strong> TC006</li>
+<li><strong>Test Name:</strong> Create New Service with Complete Data</li>
+<li><strong>Test Code:</strong> <a href="./TC006_Create_New_Service_with_Complete_Data.py">TC006_Create_New_Service_with_Complete_Data.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/571300bc-c2b3-469f-92a4-b8bdf69576ab</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Criação de serviços com dados completos funciona corretamente, incluindo cálculo automático de comissões.</li>
+</ul>
+<hr>
+<h4>Test 7</h4>
+<ul>
+<li><strong>Test ID:</strong> TC007</li>
+<li><strong>Test Name:</strong> Service Creation with Invalid Commission Percentage</li>
+<li><strong>Test Code:</strong> <a href="./TC007_Service_Creation_with_Invalid_Commission_Percentage.py">TC007_Service_Creation_with_Invalid_Commission_Percentage.py</a></li>
+<li><strong>Test Error:</strong> Formulário aceita percentuais de comissão inválidos sem aviso de validação, levando à entrada incorreta de dados.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/fcd41c72-fbcd-45fd-81b0-1a44380e72cd</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Analysis / Findings:</strong> Falta validação para percentuais de comissão fora do intervalo 0-100%. Necessário implementar validação adequada.</li>
+</ul>
+<hr>
+<h3>Requirement: Expense Management</h3>
+<ul>
+<li><strong>Description:</strong> Registro e categorização de despesas com controle de vencimento.</li>
+</ul>
+<h4>Test 8</h4>
+<ul>
+<li><strong>Test ID:</strong> TC008</li>
+<li><strong>Test Name:</strong> Record Expense with Due Date and Categorization</li>
+<li><strong>Test Code:</strong> <a href="./TC008_Record_Expense_with_Due_Date_and_Categorization.py">TC008_Record_Expense_with_Due_Date_and_Categorization.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/d24b7184-7f33-4cf7-9236-c0922c073a62</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Registro de despesas funciona corretamente com data de vencimento, categoria e status de pagamento.</li>
+</ul>
+<hr>
+<h3>Requirement: Commission Management</h3>
+<ul>
+<li><strong>Description:</strong> Controle de status de comissões e histórico de alterações.</li>
+</ul>
+<h4>Test 9</h4>
+<ul>
+<li><strong>Test ID:</strong> TC009</li>
+<li><strong>Test Name:</strong> Update Commission Status to Received</li>
+<li><strong>Test Code:</strong> <a href="./TC009_Update_Commission_Status_to_Received.py">TC009_Update_Commission_Status_to_Received.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/094d5dfa-e0e3-419c-a866-22cea323de34</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Atualização de status de comissões funciona corretamente com rastreamento de histórico adequado.</li>
+</ul>
+<hr>
+<h3>Requirement: Dashboard and Reports</h3>
+<ul>
+<li><strong>Description:</strong> Exibição de métricas financeiras e geração de relatórios.</li>
+</ul>
+<h4>Test 10</h4>
+<ul>
+<li><strong>Test ID:</strong> TC010</li>
+<li><strong>Test Name:</strong> Display Dashboard Metrics and Graphs</li>
+<li><strong>Test Code:</strong> <a href="./TC010_Display_Dashboard_Metrics_and_Graphs.py">TC010_Display_Dashboard_Metrics_and_Graphs.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/1c9344e3-edc0-4f4f-8e83-3123cfbc289c</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Dashboard exibe métricas atualizadas e gráficos corretamente com sincronização adequada de dados.</li>
+</ul>
+<hr>
+<h4>Test 11</h4>
+<ul>
+<li><strong>Test ID:</strong> TC011</li>
+<li><strong>Test Name:</strong> Generate Financial Report with Date Filters</li>
+<li><strong>Test Code:</strong> <a href="./TC011_Generate_Financial_Report_with_Date_Filters.py">TC011_Generate_Financial_Report_with_Date_Filters.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/c1a68843-420a-470f-afca-7dcdfd771140</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Geração de relatórios financeiros com filtros de data funciona corretamente, incluindo exportação em PDF.</li>
+</ul>
+<hr>
+<h3>Requirement: Backup and Data Management</h3>
+<ul>
+<li><strong>Description:</strong> Funcionalidades de backup e importação de dados.</li>
+</ul>
+<h4>Test 12</h4>
+<ul>
+<li><strong>Test ID:</strong> TC012</li>
+<li><strong>Test Name:</strong> Trigger Automatic Backup and Export JSON File</li>
+<li><strong>Test Code:</strong> <a href="./TC012_Trigger_Automatic_Backup_and_Export_JSON_File.py">TC012_Trigger_Automatic_Backup_and_Export_JSON_File.py</a></li>
+<li><strong>Test Error:</strong> Operação de backup falha ao exportar arquivo JSON, prevenindo backup de dados e comprometendo garantias de integridade.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/2374d3ca-5f18-47b1-a464-e1e48ad4333f</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Analysis / Findings:</strong> Funcionalidade de backup não funciona - botão não aciona download de arquivo. Necessário corrigir mecanismo de exportação.</li>
+</ul>
+<hr>
+<h4>Test 13</h4>
+<ul>
+<li><strong>Test ID:</strong> TC013</li>
+<li><strong>Test Name:</strong> Import Data from Valid Backup JSON</li>
+<li><strong>Test Code:</strong> <a href="./TC013_Import_Data_from_Valid_Backup_JSON.py">TC013_Import_Data_from_Valid_Backup_JSON.py</a></li>
+<li><strong>Test Error:</strong> Upload de arquivo para importação de backup JSON não pode ser automatizado devido a input desabilitado e botão, bloqueando processo de importação.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/4054fbf8-37b7-4a68-8d48-d4f137b8c347</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Analysis / Findings:</strong> Funcionalidade de importação não funciona - input de arquivo desabilitado impede upload. Necessário habilitar funcionalidade.</li>
+</ul>
+<hr>
+<h4>Test 14</h4>
+<ul>
+<li><strong>Test ID:</strong> TC014</li>
+<li><strong>Test Name:</strong> Reject Import from Corrupted or Invalid JSON</li>
+<li><strong>Test Code:</strong> <a href="./TC014_Reject_Import_from_Corrupted_or_Invalid_JSON.py">TC014_Reject_Import_from_Corrupted_or_Invalid_JSON.py</a></li>
+<li><strong>Test Error:</strong> Impossível testar rejeição de importação de JSON corrompido devido à limitação de upload.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/cd347519-136c-4a69-a392-1c334af1f703</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Analysis / Findings:</strong> Não foi possível testar validação de JSON inválido devido aos problemas de upload identificados anteriormente.</li>
+</ul>
+<hr>
+<h3>Requirement: User Interface and Experience</h3>
+<ul>
+<li><strong>Description:</strong> Interface responsiva e navegação consistente.</li>
+</ul>
+<h4>Test 15</h4>
+<ul>
+<li><strong>Test ID:</strong> TC015</li>
+<li><strong>Test Name:</strong> Responsive Interface on Desktop, Tablet and Mobile</li>
+<li><strong>Test Code:</strong> <a href="./TC015_Responsive_Interface_on_Desktop_Tablet_and_Mobile.py">TC015_Responsive_Interface_on_Desktop_Tablet_and_Mobile.py</a></li>
+<li><strong>Test Error:</strong> Teste de UI responsiva incompleto - apenas desktop verificado, tablet e mobile não testados.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/e9b7071a-fba8-438a-8790-1d320d17f26f</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Analysis / Findings:</strong> Teste parcial - desktop funciona bem, mas falta verificação em tablet e mobile para garantir responsividade completa.</li>
+</ul>
+<hr>
+<h4>Test 16</h4>
+<ul>
+<li><strong>Test ID:</strong> TC016</li>
+<li><strong>Test Name:</strong> Theme Switching Between Light and Dark Modes</li>
+<li><strong>Test Code:</strong> <a href="./TC016_Theme_Switching_Between_Light_and_Dark_Modes.py">TC016_Theme_Switching_Between_Light_and_Dark_Modes.py</a></li>
+<li><strong>Test Error:</strong> Alternância de tema funciona corretamente mas impossível verificar adaptação de notificações toast devido à falta de notificações acionáveis.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/46aede78-8356-481d-a075-504a753da61f</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Alternância de tema funciona, mas não foi possível verificar adaptação completa das notificações toast.</li>
+</ul>
+<hr>
+<h4>Test 17</h4>
+<ul>
+<li><strong>Test ID:</strong> TC017</li>
+<li><strong>Test Name:</strong> Navigation via Sidebar and Header</li>
+<li><strong>Test Code:</strong> <a href="./TC017_Navigation_via_Sidebar_and_Header.py">TC017_Navigation_via_Sidebar_and_Header.py</a></li>
+<li><strong>Test Error:</strong> Bug crítico de navegação onde clicar em 'Clientes' navega para página 'Backup', levando a roteamento incorreto.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/9a8b5962-1ca6-45b7-b135-779d40838d58</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> High</li>
+<li><strong>Analysis / Findings:</strong> CRÍTICO: Navegação inconsistente - links do menu não direcionam para páginas corretas. Necessário corrigir configuração de rotas.</li>
+</ul>
+<hr>
+<h3>Requirement: System Performance and Quality</h3>
+<ul>
+<li><strong>Description:</strong> Performance do sistema e tratamento de erros.</li>
+</ul>
+<h4>Test 18</h4>
+<ul>
+<li><strong>Test ID:</strong> TC018</li>
+<li><strong>Test Name:</strong> System Performance Under Load</li>
+<li><strong>Test Code:</strong> <a href="./TC018_System_Performance_Under_Load.py">TC018_System_Performance_Under_Load.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/cf321e80-3a95-4fa9-a9a6-993717d66ddf</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Performance do sistema atende aos requisitos com carregamento rápido de páginas e navegação fluida.</li>
+</ul>
+<hr>
+<h4>Test 19</h4>
+<ul>
+<li><strong>Test ID:</strong> TC019</li>
+<li><strong>Test Name:</strong> Clear and Helpful Error Messages</li>
+<li><strong>Test Code:</strong> <a href="./TC019_Clear_and_Helpful_Error_Messages.py">TC019_Clear_and_Helpful_Error_Messages.py</a></li>
+<li><strong>Test Error:</strong> Não é possível verificar mensagens de erro de backup devido à página de exportação de backup inacessível.</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/731814a5-97c9-4684-b99b-b5786fb5054f</li>
+<li><strong>Status:</strong> ❌ Failed</li>
+<li><strong>Severity:</strong> Medium</li>
+<li><strong>Analysis / Findings:</strong> Mensagens de erro para validação de formulários funcionam bem, mas não foi possível testar erros de backup.</li>
+</ul>
+<hr>
+<h3>Requirement: Security and Session Management</h3>
+<ul>
+<li><strong>Description:</strong> Controle de acesso e persistência de sessão.</li>
+</ul>
+<h4>Test 20</h4>
+<ul>
+<li><strong>Test ID:</strong> TC020</li>
+<li><strong>Test Name:</strong> Session Persistence After Authentication</li>
+<li><strong>Test Code:</strong> <a href="./TC020_Session_Persistence_After_Authentication.py">TC020_Session_Persistence_After_Authentication.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/36a018ab-be01-4ea8-b45e-416a8f9443a9</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Persistência de sessão funciona corretamente, mantendo usuários logados após recarregamento de página.</li>
+</ul>
+<hr>
+<h4>Test 21</h4>
+<ul>
+<li><strong>Test ID:</strong> TC021</li>
+<li><strong>Test Name:</strong> Access Control Enforcement for Protected Routes</li>
+<li><strong>Test Code:</strong> <a href="./TC021_Access_Control_Enforcement_for_Protected_Routes.py">TC021_Access_Control_Enforcement_for_Protected_Routes.py</a></li>
+<li><strong>Test Error:</strong> N/A</li>
+<li><strong>Test Visualization and Result:</strong> https://www.testsprite.com/dashboard/mcp/tests/3f8775c6-0105-44ca-b005-56ad32ad4f4f/28616162-0449-4db7-bfe9-2fe865cf6ee9</li>
+<li><strong>Status:</strong> ✅ Passed</li>
+<li><strong>Severity:</strong> Low</li>
+<li><strong>Analysis / Findings:</strong> Controle de acesso funciona adequadamente, redirecionando usuários não autenticados para página de login.</li>
+</ul>
+<hr>
+<h2>3️⃣ Coverage &amp; Matching Metrics</h2>
+<ul>
+<li><strong>90% dos requisitos do produto testados</strong></li>
+<li><strong>52% dos testes aprovados</strong></li>
+<li><strong>Principais lacunas/riscos:</strong>
+<ul>
+<li>Falha crítica de segurança: login aceita credenciais inválidas</li>
+<li>Navegação inconsistente entre módulos</li>
+<li>Funcionalidades de backup/importação não funcionais</li>
+<li>Validação insuficiente em formulários de entrada</li>
+<li>Formulário de registro de cliente incompleto</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Total Tests</th>
+<th>✅ Passed</th>
+<th>⚠️ Partial</th>
+<th>❌ Failed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User Authentication</td>
+<td>3</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Client Management</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Service Management</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Expense Management</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Commission Management</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Dashboard and Reports</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Backup and Data Management</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+</tr>
+<tr>
+<td>User Interface and Experience</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+</tr>
+<tr>
+<td>System Performance and Quality</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Security and Session Management</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>TOTAL</strong></td>
+<td><strong>21</strong></td>
+<td><strong>11</strong></td>
+<td><strong>0</strong></td>
+<td><strong>10</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><strong>Recomendações Prioritárias:</strong></p>
+<ol>
+<li><strong>CRÍTICO:</strong> Corrigir falha de segurança no sistema de login</li>
+<li><strong>CRÍTICO:</strong> Corrigir navegação entre módulos (problema de roteamento)</li>
+<li><strong>ALTO:</strong> Implementar funcionalidades de backup e importação</li>
+<li><strong>ALTO:</strong> Completar formulário de registro de clientes</li>
+<li><strong>ALTO:</strong> Adicionar validação de percentual de comissão</li>
+<li><strong>MÉDIO:</strong> Completar testes de responsividade em dispositivos móveis</li>
+</ol>
+
+    </body>
+    </html>
+  

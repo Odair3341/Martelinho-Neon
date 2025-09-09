@@ -65,7 +65,7 @@ export const ServicosTab = ({ data, onUpdateData }: ServicosTabProps) => {
     const comissaoTotal = (valorBruto * porcentagemComissao) / 100;
 
     const newService: Servico = {
-      id: Date.now(),
+      id: 'temp_' + Date.now(),
       data_servico: fixTimezoneDate(formData.data_servico),
       cliente_id: parseInt(formData.cliente_id),
       veiculo: formData.veiculo,
@@ -109,7 +109,7 @@ export const ServicosTab = ({ data, onUpdateData }: ServicosTabProps) => {
     new Date(b.data_servico).getTime() - new Date(a.data_servico).getTime()
   );
 
-  const deleteService = (serviceId: number) => {
+  const deleteService = (serviceId: number | string) => {
     const updatedServices = data.servicos.filter(s => s.id !== serviceId);
     const updatedData = {
       ...data,

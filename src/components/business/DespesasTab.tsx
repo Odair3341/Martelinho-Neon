@@ -30,8 +30,9 @@ export const DespesasTab = ({ data, onUpdateData }: DespesasTabProps) => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
-      month: '2-digit', 
-      year: 'numeric'
+      month: '2-digit',
+      year: 'numeric',
+      timeZone: 'UTC'
     });
   };
 
@@ -40,7 +41,8 @@ export const DespesasTab = ({ data, onUpdateData }: DespesasTabProps) => {
       weekday: 'short',
       day: '2-digit',
       month: 'short',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: 'UTC'
     });
   };
 
@@ -58,7 +60,7 @@ export const DespesasTab = ({ data, onUpdateData }: DespesasTabProps) => {
     }
 
     const newExpense: Despesa = {
-      id: Date.now(),
+      id: 'temp_' + Date.now(),
       descricao: formData.descricao,
       valor: parseFloat(formData.valor),
       data_vencimento: formData.data_vencimento,
@@ -83,7 +85,7 @@ export const DespesasTab = ({ data, onUpdateData }: DespesasTabProps) => {
     setShowForm(false);
   };
 
-  const togglePaid = (despesaId: number) => {
+  const togglePaid = (despesaId: number | string) => {
     const updatedDespesas = data.despesas.map(despesa =>
       despesa.id === despesaId ? { ...despesa, pago: !despesa.pago } : despesa
     );
