@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { BusinessData } from "@/types/business";
 import { Download, Upload, Database, AlertTriangle, Calendar } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface BackupTabProps {
   data: BusinessData;
@@ -10,31 +11,58 @@ interface BackupTabProps {
 }
 
 export const BackupTab = ({ data, onImportData }: BackupTabProps) => {
-  const exportData = () => {
-    const dataToExport = {
-      ...data,
-      metadata: {
-        ...data.metadata,
-        exportDate: new Date().toISOString(),
-        totalClientes: data.clientes.length,
-        totalServicos: data.servicos.length,
-        totalDespesas: data.despesas.length,
-        totalComissoes: data.comissoes.length
-      }
-    };
+  const { toast } = useToast();
 
-    const dataStr = JSON.stringify(dataToExport, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `backup-sistema-financeiro-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    URL.revokeObjectURL(url);
+  const exportData = () => {
+    try {
+      const dataToExport = {
+        ...data,
+        metadata: {
+          ...data.metadata,
+          exportDate: new Date().toISOString(),
+          totalClientes: data.clientes.length,
+          totalServicos: data.servicos.length,
+          totalDespesas: data.despesas.length,
+          totalComissoes: data.comissoes.length,
+          version: "1.0"
+        }
+      };
+
+      const dataStr = JSON.stringify(dataToExport, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+      
+      // Create download link
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      const fileName = `backup-sistema-financeiro-${new Date().toISOString().split('T')[0]}.json`;
+      
+      link.href = url;
+      link.download = fileName;
+      link.style.display = 'none';
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+      
+      toast({
+        title: "Backup criado com sucesso!",
+        description: `Arquivo ${fileName} foi baixado.`,
+      });
+      
+    } catch (error) {
+      console.error('Erro ao criar backup:', error);
+      toast({
+        title: "Erro ao criar backup",
+        description: "Não foi possível gerar o arquivo de backup. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const formatDate = (dateString: string) => {

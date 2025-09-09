@@ -57,11 +57,18 @@ export const ServicosTab = ({ data, onUpdateData }: ServicosTabProps) => {
 
   const addService = () => {
     if (!formData.data_servico || !formData.cliente_id || !formData.veiculo || !formData.placa || !formData.valor_bruto) {
+      alert("Por favor, preencha todos os campos obrigatórios.");
       return;
     }
 
     const valorBruto = parseFloat(formData.valor_bruto);
     const porcentagemComissao = parseFloat(formData.porcentagem_comissao);
+    
+    // Validação do percentual de comissão
+    if (isNaN(porcentagemComissao) || porcentagemComissao < 0 || porcentagemComissao > 100) {
+      alert("O percentual de comissão deve estar entre 0% e 100%.");
+      return;
+    }
     const comissaoTotal = (valorBruto * porcentagemComissao) / 100;
 
     const newService: Servico = {
@@ -245,8 +252,17 @@ export const ServicosTab = ({ data, onUpdateData }: ServicosTabProps) => {
                   id="porcentagem_comissao"
                   type="number"
                   step="0.1"
+                  min="0"
+                  max="100"
                   value={formData.porcentagem_comissao}
-                  onChange={(e) => setFormData({...formData, porcentagem_comissao: e.target.value})}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numValue = parseFloat(value);
+                    if (value === '' || (numValue >= 0 && numValue <= 100)) {
+                      setFormData({...formData, porcentagem_comissao: value});
+                    }
+                  }}
+                  placeholder="0 - 100"
                 />
               </div>
 

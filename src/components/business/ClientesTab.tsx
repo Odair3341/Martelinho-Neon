@@ -13,6 +13,10 @@ interface ClientesTabProps {
 
 export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
   const [newClienteName, setNewClienteName] = useState("");
+  const [newClientePhone, setNewClientePhone] = useState("");
+  const [newClienteEmail, setNewClienteEmail] = useState("");
+  const [newClienteAddress, setNewClienteAddress] = useState("");
+  const [newClienteCpf, setNewClienteCpf] = useState("");
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
 
   const formatCurrency = (value: number) => {
@@ -23,14 +27,39 @@ export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
   };
 
   const addClient = () => {
+    // Validação dos campos obrigatórios
     if (!newClienteName.trim()) {
       alert("Por favor, digite o nome do cliente.");
+      return;
+    }
+    if (!newClientePhone.trim()) {
+      alert("Por favor, digite o telefone do cliente.");
+      return;
+    }
+    if (!newClienteEmail.trim()) {
+      alert("Por favor, digite o email do cliente.");
+      return;
+    }
+    if (!newClienteAddress.trim()) {
+      alert("Por favor, digite o endereço do cliente.");
+      return;
+    }
+    
+    // Validação de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newClienteEmail)) {
+      alert("Por favor, digite um email válido.");
       return;
     }
     
     const newClient: Cliente = {
       id: 'temp_' + Date.now(),
-      nome: newClienteName.trim()
+      nome: newClienteName.trim(),
+      telefone: newClientePhone.trim(),
+      email: newClienteEmail.trim(),
+      endereco: newClienteAddress.trim(),
+      cpf: newClienteCpf.trim() || undefined,
+      data_cadastro: new Date().toISOString()
     };
 
     const updatedData = {
@@ -44,6 +73,10 @@ export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
 
     onUpdateData(updatedData);
     setNewClienteName("");
+    setNewClientePhone("");
+    setNewClienteEmail("");
+    setNewClienteAddress("");
+    setNewClienteCpf("");
     console.log("Cliente adicionado:", newClient);
   };
 
@@ -69,14 +102,55 @@ export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex space-x-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Nome Completo *</label>
+              <Input
+                placeholder="Digite o nome completo do cliente"
+                value={newClienteName}
+                onChange={(e) => setNewClienteName(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Telefone *</label>
+              <Input
+                placeholder="(11) 99999-9999"
+                value={newClientePhone}
+                onChange={(e) => setNewClientePhone(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Email *</label>
+              <Input
+                type="email"
+                placeholder="cliente@email.com"
+                value={newClienteEmail}
+                onChange={(e) => setNewClienteEmail(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">CPF</label>
+              <Input
+                placeholder="000.000.000-00"
+                value={newClienteCpf}
+                onChange={(e) => setNewClienteCpf(e.target.value)}
+                className="w-full"
+              />
+            </div>
+          </div>
+          <div className="mb-4">
+            <label className="text-sm font-medium mb-1 block">Endereço Completo *</label>
             <Input
-              placeholder="Digite o nome completo do cliente"
-              value={newClienteName}
-              onChange={(e) => setNewClienteName(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addClient()}
-              className="flex-1"
+              placeholder="Rua, número, bairro, cidade - CEP"
+              value={newClienteAddress}
+              onChange={(e) => setNewClienteAddress(e.target.value)}
+              className="w-full"
             />
+          </div>
+          <div className="flex justify-end">
             <Button onClick={addClient} className="bg-accent hover:bg-accent/90">
               <Plus className="h-4 w-4 mr-2" />
               Adicionar Cliente
@@ -102,7 +176,17 @@ export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="font-semibold text-lg">{cliente.nome}</h3>
-                      <p className="text-sm text-muted-foreground">Cliente desde: 14/08/2025</p>
+                      <p className="text-sm text-muted-foreground">
+                        {cliente.telefone && `📞 ${cliente.telefone}`}
+                        {cliente.telefone && cliente.email && ' • '}
+                        {cliente.email && `📧 ${cliente.email}`}
+                      </p>
+                      {cliente.endereco && (
+                        <p className="text-sm text-muted-foreground mt-1">📍 {cliente.endereco}</p>
+                      )}
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Cliente desde: {cliente.data_cadastro ? new Date(cliente.data_cadastro).toLocaleDateString('pt-BR') : '14/08/2025'}
+                      </p>
                     </div>
                     <Button
                       variant="outline"

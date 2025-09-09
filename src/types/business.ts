@@ -1,6 +1,11 @@
 export interface Cliente {
   id: number | string;
   nome: string;
+  telefone: string;
+  email: string;
+  endereco: string;
+  cpf?: string;
+  data_cadastro?: string;
 }
 
 export interface Servico {
