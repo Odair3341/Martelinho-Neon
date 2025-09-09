@@ -1,0 +1,176 @@
+{
+  "meta": {
+    "project": "Sistema de Gestão Financeira Martelinho",
+    "date": "2025-09-08",
+    "prepared_by": "Sistema TestSprite"
+  },
+  "product_overview": "Sistema de gestão financeira para oficinas automotivas focado no controle integrado de clientes, serviços, despesas, comissões e relatórios financeiros, oferecendo uma interface moderna, segura e responsiva.",
+  "core_goals": [
+    "Centralizar o controle financeiro da oficina automotiva",
+    "Automatizar o cálculo de comissões com base em percentuais definidos",
+    "Facilitar o acompanhamento e controle de receitas, despesas e comissões",
+    "Gerar relatórios financeiros detalhados com exportação em PDF",
+    "Garantir backup seguro e fácil importação de dados",
+    "Proporcionar autenticação segura e controle de acesso para usuários",
+    "Oferecer uma interface intuitiva e responsiva para vários dispositivos"
+  ],
+  "key_features": [
+    "Gestão completa de clientes com cadastro, visualização e histórico de serviços",
+    "Controle detalhado de serviços automotivos incluindo veículos, valores, comissões e status de pagamento",
+    "Gestão de despesas com controle de vencimentos, status e categorização",
+    "Controle de comissões com status de recebimento e acompanhamento histórico",
+    "Dashboard executivo com métricas e gráficos financeiros",
+    "Sistema de relatórios financeiros filtráveis por período com exportação PDF",
+    "Backup automático e restauração de dados via JSON com validação de integridade",
+    "Autenticação segura via Supabase com sessões persistentes e controle de acesso",
+    "Interface responsiva adaptada para desktop, tablet e dispositivos móveis",
+    "Notificações toast para feedback do usuário e suporte a temas claro/escuro"
+  ],
+  "user_flow_summary": [
+    "Fluxo de cadastro de serviço: cadastro do cliente, dados do veículo, definição do valor e comissão, observações e salvamento com cálculo automático",
+    "Fluxo de controle financeiro: acesso ao dashboard, análise de métricas, geração e filtro de relatórios, exportação em PDF",
+    "Fluxo de backup: seleção dos dados para exportação, geração do arquivo JSON e armazenamento seguro",
+    "Fluxo de autenticação: login seguro, manutenção da sessão e controle de acesso às rotas e funcionalidades",
+    "Fluxo de navegação: uso da sidebar e header para transitar entre módulos como clientes, serviços, despesas, comissões, relatórios e backup"
+  ],
+  "validation_criteria": [
+    "Usuário consegue fazer login e logout com autenticação segura",
+    "Usuário consegue cadastrar, visualizar e gerenciar clientes, serviços, despesas e comissões",
+    "Usuário consegue gerar relatórios financeiros com filtros e exportar em PDF",
+    "Usuário consegue realizar backup e importar dados com sucesso",
+    "Tempo de carregamento do sistema inferior a 3 segundos e navegação fluida",
+    "Relatórios são gerados em menos de 5 segundos",
+    "Interface é intuitiva, responsiva e acessível para usuários não técnicos",
+    "Mensagens de erro são claras e fornecem feedback útil",
+    "Sistema funciona corretamente em dispositivos móveis e desktops"
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "React",
+      "Vite",
+      "Tailwind CSS",
+      "Shadcn/ui",
+      "Supabase",
+      "React Router",
+      "React Hook Form",
+      "Zod",
+      "date-fns",
+      "Recharts",
+      "jsPDF",
+      "html2canvas"
+    ],
+    "features": [
+      {
+        "name": "Authentication",
+        "description": "Sistema de autenticação segura com Supabase, incluindo login e registro de usuários",
+        "files": [
+          "src/pages/Auth.tsx",
+          "src/integrations/supabase/client.ts"
+        ]
+      },
+      {
+        "name": "Dashboard",
+        "description": "Painel principal com resumo de métricas financeiras, clientes, serviços e comissões",
+        "files": [
+          "src/components/business/Dashboard.tsx",
+          "src/pages/Index.tsx"
+        ]
+      },
+      {
+        "name": "Client Management",
+        "description": "Gestão completa de clientes com cadastro, visualização e controle",
+        "files": [
+          "src/components/business/ClientesTab.tsx"
+        ]
+      },
+      {
+        "name": "Service Management",
+        "description": "Controle de serviços automotivos com informações de veículos, valores e comissões",
+        "files": [
+          "src/components/business/ServicosTab.tsx"
+        ]
+      },
+      {
+        "name": "Expense Management",
+        "description": "Gestão de despesas com controle de vencimentos e status de pagamento",
+        "files": [
+          "src/components/business/DespesasTab.tsx"
+        ]
+      },
+      {
+        "name": "Commission Control",
+        "description": "Controle de comissões com status de recebimento e valores",
+        "files": [
+          "src/components/business/ComissoesTab.tsx"
+        ]
+      },
+      {
+        "name": "Financial Reports",
+        "description": "Sistema de relatórios financeiros com filtros e exportação em PDF",
+        "files": [
+          "src/components/business/RelatoriosTab.tsx",
+          "src/components/business/ReportViewer.tsx"
+        ]
+      },
+      {
+        "name": "Data Backup and Import",
+        "description": "Sistema de backup e importação de dados em formato JSON",
+        "files": [
+          "src/components/business/BackupTab.tsx",
+          "src/components/business/ImportDialog.tsx"
+        ]
+      },
+      {
+        "name": "Navigation System",
+        "description": "Sistema de navegação entre diferentes módulos do sistema",
+        "files": [
+          "src/components/business/Navigation.tsx",
+          "src/components/business/Header.tsx"
+        ]
+      },
+      {
+        "name": "UI Components",
+        "description": "Biblioteca de componentes UI baseada em Shadcn/ui com Radix UI",
+        "files": [
+          "src/components/ui/"
+        ]
+      },
+      {
+        "name": "Theme Provider",
+        "description": "Sistema de temas com suporte a modo escuro/claro",
+        "files": [
+          "src/lib/theme-provider.tsx"
+        ]
+      },
+      {
+        "name": "Toast Notifications",
+        "description": "Sistema de notificações toast para feedback do usuário",
+        "files": [
+          "src/hooks/use-toast.ts"
+        ]
+      },
+      {
+        "name": "Mobile Responsive",
+        "description": "Hook para detecção de dispositivos móveis e responsividade",
+        "files": [
+          "src/hooks/use-mobile.tsx"
+        ]
+      },
+      {
+        "name": "Business Data Types",
+        "description": "Definições de tipos TypeScript para entidades de negócio",
+        "files": [
+          "src/types/business.ts"
+        ]
+      },
+      {
+        "name": "Database Integration",
+        "description": "Integração com Supabase para persistência de dados",
+        "files": [
+          "src/integrations/supabase/"
+        ]
+      }
+    ]
+  }
+}

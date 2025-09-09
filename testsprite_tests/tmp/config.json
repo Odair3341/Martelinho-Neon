@@ -1,0 +1,18 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:8080",
+  "loginUser": "odair_orso@hotmail.com",
+  "loginPassword": "Turce.334180",
+  "executionArgs": {
+    "projectName": "Martelinho Lovable",
+    "projectPath": "c:\\Users\\Financeiro\\Documents\\Martelinho Lovable",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-XKJQXChtr45uDm_IK9sfwZnCnRsbKKPPKYwpYW_AulgFBuDJcTreBJFS6EosIHKsuz6A9Tg0XH4SzcX5N9HtVpdrdCRkhzI8IVMDtJTkLenl6cmqni2NIY1s-xn1b7nTiMM"
+    }
+  },
+  "proxy": "http://7494b1fc-94aa-4aa8-ac7f-2211f0bcd4cd:dnRrwlTuIrPXuogEb1B54C9rayYY28nS@tun.testsprite.com:8080"
+}

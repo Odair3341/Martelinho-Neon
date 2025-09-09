@@ -1,0 +1,575 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Login Success",
+    "description": "Verify that a user can successfully log in with valid credentials using Supabase authentication.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Enter valid username/email and password."
+      },
+      {
+        "type": "action",
+        "description": "Click the login button."
+      },
+      {
+        "type": "assertion",
+        "description": "User is authenticated and redirected to the dashboard."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Login Failure with Invalid Credentials",
+    "description": "Verify that the login process fails gracefully when invalid credentials are provided.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the login page."
+      },
+      {
+        "type": "action",
+        "description": "Enter invalid username/email or password."
+      },
+      {
+        "type": "action",
+        "description": "Click the login button."
+      },
+      {
+        "type": "assertion",
+        "description": "User is shown an error message indicating login failure."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "User Logout Successfully",
+    "description": "Verify that authenticated users can log out and are redirected to the login page.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Authenticate and navigate to dashboard."
+      },
+      {
+        "type": "action",
+        "description": "Click logout button."
+      },
+      {
+        "type": "assertion",
+        "description": "User session ends and user is redirected to login page."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Client Registration with Valid Data",
+    "description": "Verify that a user can register a new client with all required and valid information.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to clients management page."
+      },
+      {
+        "type": "action",
+        "description": "Open new client registration form."
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid client data including name, contact information, and vehicle details."
+      },
+      {
+        "type": "action",
+        "description": "Submit the registration form."
+      },
+      {
+        "type": "assertion",
+        "description": "New client record is created and visible in the clients list."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Client Registration with Missing Required Fields",
+    "description": "Verify the system validates required fields and prevents client registration when mandatory data is missing.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to clients management page."
+      },
+      {
+        "type": "action",
+        "description": "Open new client registration form."
+      },
+      {
+        "type": "action",
+        "description": "Leave mandatory fields empty and submit the form."
+      },
+      {
+        "type": "assertion",
+        "description": "Validation errors are shown indicating missing required fields."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Create New Service with Complete Data",
+    "description": "Verify that a service can be created with client, vehicle, service value, commission, observations and that commission is calculated automatically.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to service management page."
+      },
+      {
+        "type": "action",
+        "description": "Open new service creation form."
+      },
+      {
+        "type": "action",
+        "description": "Fill client, vehicle, value, commission percentage, additional observations."
+      },
+      {
+        "type": "action",
+        "description": "Submit the form."
+      },
+      {
+        "type": "assertion",
+        "description": "Service is created and commission value is correctly calculated and displayed."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Service Creation with Invalid Commission Percentage",
+    "description": "Validate that service creation fails or warns if commission percentage is invalid (e.g., negative or over 100%).",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to service management page."
+      },
+      {
+        "type": "action",
+        "description": "Open new service creation form."
+      },
+      {
+        "type": "action",
+        "description": "Enter a negative or greater than 100% commission percentage."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit form."
+      },
+      {
+        "type": "assertion",
+        "description": "Validation error is displayed preventing submission."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Record Expense with Due Date and Categorization",
+    "description": "Verify that an expense can be recorded specifying due date, amount, category, and payment status.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to expense management page."
+      },
+      {
+        "type": "action",
+        "description": "Open new expense form."
+      },
+      {
+        "type": "action",
+        "description": "Fill in amount, due date, category, and payment status."
+      },
+      {
+        "type": "action",
+        "description": "Submit the form."
+      },
+      {
+        "type": "assertion",
+        "description": "Expense recorded and visible in the list with correct details."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Update Commission Status to Received",
+    "description": "Verify that commission status can be updated from pending to received and the history is tracked correctly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to commission control page."
+      },
+      {
+        "type": "action",
+        "description": "Select a commission entry with pending status."
+      },
+      {
+        "type": "action",
+        "description": "Update status to received."
+      },
+      {
+        "type": "assertion",
+        "description": "Commission status changes to received and history shows the update timestamp."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Display Dashboard Metrics and Graphs",
+    "description": "Verify dashboard shows up-to-date financial metrics, client counts, services completed and commission data with proper graphs.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and navigate to the home dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Dashboard metrics and charts load within 3 seconds with accurate data."
+      },
+      {
+        "type": "assertion",
+        "description": "Graphs respond correctly to data and display labels clearly."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Generate Financial Report with Date Filters",
+    "description": "Verify financial reports can be generated filtered by date ranges and other criteria, and export as PDF.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to reports module."
+      },
+      {
+        "type": "action",
+        "description": "Select date range and other filters."
+      },
+      {
+        "type": "action",
+        "description": "Generate report."
+      },
+      {
+        "type": "assertion",
+        "description": "Report loads within 5 seconds showing correct filtered data."
+      },
+      {
+        "type": "action",
+        "description": "Click export to PDF."
+      },
+      {
+        "type": "assertion",
+        "description": "PDF file downloads and matches displayed report content."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Trigger Automatic Backup and Export JSON File",
+    "description": "Verify that backup operation exports current data as a JSON file with full data integrity validation.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to backup module."
+      },
+      {
+        "type": "action",
+        "description": "Trigger automatic data backup."
+      },
+      {
+        "type": "assertion",
+        "description": "Backup JSON file is generated and available for download."
+      },
+      {
+        "type": "assertion",
+        "description": "Backup file content is validated for data completeness and integrity."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Import Data from Valid Backup JSON",
+    "description": "Verify that data can be imported successfully from a valid backup JSON file restoring system state.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to import data dialog."
+      },
+      {
+        "type": "action",
+        "description": "Upload a valid backup JSON file."
+      },
+      {
+        "type": "action",
+        "description": "Confirm import."
+      },
+      {
+        "type": "assertion",
+        "description": "System imports data correctly, updates views, and no data loss occurs."
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Reject Import from Corrupted or Invalid JSON",
+    "description": "Verify system detects invalid or corrupted JSON backup files and prevents import with user feedback.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to import data dialog."
+      },
+      {
+        "type": "action",
+        "description": "Upload a corrupted or invalid JSON file."
+      },
+      {
+        "type": "assertion",
+        "description": "System shows clear error message and blocks import."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Responsive Interface on Desktop, Tablet and Mobile",
+    "description": "Verify UI renders correctly and navigation works seamlessly across desktop, tablet, and mobile screen sizes.",
+    "category": "ui",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Access system on desktop with large screen."
+      },
+      {
+        "type": "assertion",
+        "description": "UI elements are well-aligned, navigation sidebar visible, interactions work as expected."
+      },
+      {
+        "type": "action",
+        "description": "Access system on tablet with medium screen size."
+      },
+      {
+        "type": "assertion",
+        "description": "UI adapts layout properly; navigation remains intuitive and accessible."
+      },
+      {
+        "type": "action",
+        "description": "Access system on mobile device with small screen."
+      },
+      {
+        "type": "assertion",
+        "description": "UI collapses navigation to hamburger menu; content is readable and usable; no overflow or horizontal scrolling."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Theme Switching Between Light and Dark Modes",
+    "description": "Verify that user can switch interface theme between light and dark modes and that toast notifications adapt accordingly.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to any page with theme switch."
+      },
+      {
+        "type": "action",
+        "description": "Switch theme to dark mode."
+      },
+      {
+        "type": "assertion",
+        "description": "UI theme changes to dark mode and remains consistent across pages."
+      },
+      {
+        "type": "action",
+        "description": "Trigger a toast notification."
+      },
+      {
+        "type": "assertion",
+        "description": "Toast notification appearance matches current theme."
+      },
+      {
+        "type": "action",
+        "description": "Switch theme back to light mode."
+      },
+      {
+        "type": "assertion",
+        "description": "UI theme changes back to light mode and notifications adapt accordingly."
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Navigation via Sidebar and Header",
+    "description": "Verify users can navigate between modules (clients, services, expenses, commissions, reports, backup) using sidebar and header menu consistently.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and open main interface."
+      },
+      {
+        "type": "action",
+        "description": "Use sidebar links to navigate to each module."
+      },
+      {
+        "type": "assertion",
+        "description": "Each module loads correctly and state updates accordingly."
+      },
+      {
+        "type": "action",
+        "description": "Use header navigation controls to traverse modules."
+      },
+      {
+        "type": "assertion",
+        "description": "Navigation works seamlessly without errors or page reload issues."
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "System Performance Under Load",
+    "description": "Verify system performance meets requirements: page loads under 3 seconds, reports generate under 5 seconds, and navigation is fluid.",
+    "category": "performance",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Measure load time of dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Dashboard loads completely in less than 3 seconds."
+      },
+      {
+        "type": "action",
+        "description": "Generate a financial report with filters."
+      },
+      {
+        "type": "assertion",
+        "description": "Report generation completes in less than 5 seconds."
+      },
+      {
+        "type": "action",
+        "description": "Navigate rapidly between different modules."
+      },
+      {
+        "type": "assertion",
+        "description": "Navigation is smooth without lag or delays."
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Clear and Helpful Error Messages",
+    "description": "Verify error messages shown to users for failures such as invalid inputs, failed backups, login errors are clear and informative.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Cause a form validation error by submitting empty required fields."
+      },
+      {
+        "type": "assertion",
+        "description": "Validation error messages clearly indicate the issue and how to fix."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to login with incorrect credentials."
+      },
+      {
+        "type": "assertion",
+        "description": "Error message shows invalid credentials hint."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to export backup with simulated storage error."
+      },
+      {
+        "type": "assertion",
+        "description": "Error notification explains backup failure with recovery steps."
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Session Persistence After Authentication",
+    "description": "Verify that user sessions persist after login and remain active across page reloads and short periods of inactivity.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Log in successfully."
+      },
+      {
+        "type": "action",
+        "description": "Reload the web page."
+      },
+      {
+        "type": "assertion",
+        "description": "User remains logged in and session data is preserved."
+      },
+      {
+        "type": "action",
+        "description": "Wait for short inactivity period."
+      },
+      {
+        "type": "assertion",
+        "description": "User session remains active and accessible without re-login."
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Access Control Enforcement for Protected Routes",
+    "description": "Verify that unauthenticated users cannot access protected modules and are redirected to login page.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to navigate directly to a protected page (eg: /services) without login."
+      },
+      {
+        "type": "assertion",
+        "description": "System redirects to login page preventing access."
+      }
+    ]
+  }
+]

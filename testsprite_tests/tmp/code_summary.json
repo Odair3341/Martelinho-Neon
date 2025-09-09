@@ -1,0 +1,94 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "React",
+    "Vite",
+    "Tailwind CSS",
+    "Shadcn/ui",
+    "Supabase",
+    "React Router",
+    "React Hook Form",
+    "Zod",
+    "date-fns",
+    "Recharts",
+    "jsPDF",
+    "html2canvas"
+  ],
+  "features": [
+    {
+      "name": "Authentication",
+      "description": "Sistema de autenticação segura com Supabase, incluindo login e registro de usuários",
+      "files": ["src/pages/Auth.tsx", "src/integrations/supabase/client.ts"]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Painel principal com resumo de métricas financeiras, clientes, serviços e comissões",
+      "files": ["src/components/business/Dashboard.tsx", "src/pages/Index.tsx"]
+    },
+    {
+      "name": "Client Management",
+      "description": "Gestão completa de clientes com cadastro, visualização e controle",
+      "files": ["src/components/business/ClientesTab.tsx"]
+    },
+    {
+      "name": "Service Management",
+      "description": "Controle de serviços automotivos com informações de veículos, valores e comissões",
+      "files": ["src/components/business/ServicosTab.tsx"]
+    },
+    {
+      "name": "Expense Management",
+      "description": "Gestão de despesas com controle de vencimentos e status de pagamento",
+      "files": ["src/components/business/DespesasTab.tsx"]
+    },
+    {
+      "name": "Commission Control",
+      "description": "Controle de comissões com status de recebimento e valores",
+      "files": ["src/components/business/ComissoesTab.tsx"]
+    },
+    {
+      "name": "Financial Reports",
+      "description": "Sistema de relatórios financeiros com filtros e exportação em PDF",
+      "files": ["src/components/business/RelatoriosTab.tsx", "src/components/business/ReportViewer.tsx"]
+    },
+    {
+      "name": "Data Backup and Import",
+      "description": "Sistema de backup e importação de dados em formato JSON",
+      "files": ["src/components/business/BackupTab.tsx", "src/components/business/ImportDialog.tsx"]
+    },
+    {
+      "name": "Navigation System",
+      "description": "Sistema de navegação entre diferentes módulos do sistema",
+      "files": ["src/components/business/Navigation.tsx", "src/components/business/Header.tsx"]
+    },
+    {
+      "name": "UI Components",
+      "description": "Biblioteca de componentes UI baseada em Shadcn/ui com Radix UI",
+      "files": ["src/components/ui/"]
+    },
+    {
+      "name": "Theme Provider",
+      "description": "Sistema de temas com suporte a modo escuro/claro",
+      "files": ["src/lib/theme-provider.tsx"]
+    },
+    {
+      "name": "Toast Notifications",
+      "description": "Sistema de notificações toast para feedback do usuário",
+      "files": ["src/hooks/use-toast.ts"]
+    },
+    {
+      "name": "Mobile Responsive",
+      "description": "Hook para detecção de dispositivos móveis e responsividade",
+      "files": ["src/hooks/use-mobile.tsx"]
+    },
+    {
+      "name": "Business Data Types",
+      "description": "Definições de tipos TypeScript para entidades de negócio",
+      "files": ["src/types/business.ts"]
+    },
+    {
+      "name": "Database Integration",
+      "description": "Integração com Supabase para persistência de dados",
+      "files": ["src/integrations/supabase/"]
+    }
+  ]
+}

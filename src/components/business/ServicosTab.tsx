@@ -39,8 +39,9 @@ export const ServicosTab = ({ data, onUpdateData }: ServicosTabProps) => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
-      month: '2-digit', 
-      year: 'numeric'
+      month: '2-digit',
+      year: 'numeric',
+      timeZone: 'UTC'
     });
   };
 
@@ -49,7 +50,8 @@ export const ServicosTab = ({ data, onUpdateData }: ServicosTabProps) => {
       weekday: 'short',
       day: '2-digit',
       month: 'short',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: 'UTC'
     });
   };
 
