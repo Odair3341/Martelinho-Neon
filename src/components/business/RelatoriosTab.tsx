@@ -60,21 +60,65 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
   ];
 
-  // Filtrar serviços baseado no mês selecionado
+  // Filtrar serviços baseado nos filtros selecionados
   const filteredServicos = data.servicos.filter(servico => {
-    if (selectedMonth === "todos") return true;
-
-    if (dateFilterType === "servico") {
-      const servicoDate = new Date(servico.data_servico);
-      const servicoMonth = `${servicoDate.getFullYear()}-${String(servicoDate.getMonth() + 1).padStart(2, '0')}`;
-      return servicoMonth === selectedMonth;
-    } else {
-      // Filtrar por data de recebimento
-      if (!servico.data_recebimento_comissao) return false;
-      const recebimentoDate = new Date(servico.data_recebimento_comissao);
-      const recebimentoMonth = `${recebimentoDate.getFullYear()}-${String(recebimentoDate.getMonth() + 1).padStart(2, '0')}`;
-      return recebimentoMonth === selectedMonth;
+    // Filtro por mês
+    let passesMonthFilter = true;
+    if (selectedMonth !== "todos") {
+      if (dateFilterType === "servico") {
+        const servicoDate = new Date(servico.data_servico);
+        const servicoMonth = `${servicoDate.getFullYear()}-${String(servicoDate.getMonth() + 1).padStart(2, '0')}`;
+        passesMonthFilter = servicoMonth === selectedMonth;
+      } else {
+        // Filtrar por data de recebimento
+        if (!servico.data_recebimento_comissao) {
+          passesMonthFilter = false;
+        } else {
+          const recebimentoDate = new Date(servico.data_recebimento_comissao);
+          const recebimentoMonth = `${recebimentoDate.getFullYear()}-${String(recebimentoDate.getMonth() + 1).padStart(2, '0')}`;
+          passesMonthFilter = recebimentoMonth === selectedMonth;
+        }
+      }
     }
+
+    // Filtro por status
+    let passesStatusFilter = true;
+    if (statusFilter !== "todos") {
+      const comissaoTotal = Math.round(servico.valor_bruto * servico.porcentagem_comissao) / 100;
+      const isRecebido = servico.comissao_recebida >= comissaoTotal;
+      
+      if (statusFilter === "recebidos") {
+        passesStatusFilter = isRecebido;
+      } else if (statusFilter === "pendentes") {
+        passesStatusFilter = !isRecebido;
+      }
+    }
+
+    // Filtro por cliente
+    let passesClientFilter = true;
+    if (clienteFilter.trim() !== "") {
+      const cliente = data.clientes.find(c => c.id === servico.cliente_id);
+      const clienteNome = cliente ? cliente.nome.toLowerCase() : '';
+      passesClientFilter = clienteNome.includes(clienteFilter.toLowerCase());
+    }
+
+    // Filtro por data início e fim
+    let passesDateRangeFilter = true;
+    if (dataInicio || dataFim) {
+      const servicoDate = new Date(servico.data_servico);
+      
+      if (dataInicio) {
+        const inicioDate = new Date(dataInicio);
+        if (servicoDate < inicioDate) passesDateRangeFilter = false;
+      }
+      
+      if (dataFim) {
+        const fimDate = new Date(dataFim);
+        if (servicoDate > fimDate) passesDateRangeFilter = false;
+      }
+    }
+
+    return passesMonthFilter && passesStatusFilter && passesClientFilter && passesDateRangeFilter;
   });
 
   // Calcular totais
