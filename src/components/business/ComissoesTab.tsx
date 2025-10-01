@@ -156,11 +156,13 @@ export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: Comiss
                 <TrendingUp className="h-6 w-6 text-accent" />
               </div>
               <div>
-                <p className="text-2xl font-bold">28,2%</p>
+                <p className="text-2xl font-bold">
+                  {Math.round((comissoesRecebidas / totalComissoes * 100) || 0)}%
+                </p>
                 <p className="text-sm text-muted-foreground">Progresso</p>
                 <div className="w-full bg-muted rounded-full h-2 mt-1">
-                  <div 
-                    className="bg-accent h-2 rounded-full transition-all duration-300" 
+                  <div
+                    className="bg-accent h-2 rounded-full transition-all duration-300"
                     style={{ width: `${(comissoesRecebidas / totalComissoes * 100) || 0}%` }}
                   ></div>
                 </div>

@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { BusinessData } from "@/types/business";
-import { Download, Upload, Database, AlertTriangle, Calendar } from "lucide-react";
+import { Download, Upload, Database, AlertTriangle, Calendar, Bug } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface BackupTabProps {
   data: BusinessData;
@@ -13,6 +15,8 @@ interface BackupTabProps {
 
 export const BackupTab = ({ data, onImportData, onMigrate }: BackupTabProps) => {
   const { toast } = useToast();
+  const [showDebug, setShowDebug] = useState(false);
+
 
 
   const exportData = () => {
@@ -246,6 +250,38 @@ export const BackupTab = ({ data, onImportData, onMigrate }: BackupTabProps) => 
           </div>
         </CardContent>
       </Card>
+
+      {/* Debug Card */}
+      <Card className="shadow-medium border-yellow-500/50">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2 text-yellow-600">
+            <Bug className="h-5 w-5" />
+            <span>Depuração de Dados</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Use esta ferramenta para visualizar os dados brutos da tabela de comissões e ajudar a diagnosticar problemas.
+          </p>
+          <Button onClick={() => setShowDebug(true)} variant="outline">
+            Ver Dados de Comissões (Debug)
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Dialog open={showDebug} onOpenChange={setShowDebug}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Dados Brutos da Tabela de Comissões</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 bg-gray-900 text-white p-4 rounded-md max-h-[60vh] overflow-y-auto">
+            <pre>
+              {JSON.stringify(data.comissoes, null, 2)}
+            </pre>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 };
