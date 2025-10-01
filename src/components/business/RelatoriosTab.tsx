@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BusinessData } from "@/types/business";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { DollarSign, TrendingUp, Calendar, CheckCircle2 } from "lucide-react";
 
 interface RelatoriosTabProps {
@@ -15,6 +17,18 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
   // Função para formatar moeda
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+
+  // Função para formatar data
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+  };
+
+  // Função para obter o nome do cliente
+  const getClienteName = (clienteId: number | string) => {
+    const cliente = data.clientes.find(c => c.id === clienteId);
+    return cliente ? cliente.nome : 'Cliente não encontrado';
   };
 
   // Gerar lista de meses disponíveis baseado nos serviços E nas datas de recebimento
@@ -49,6 +63,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
       const servicoMonth = `${servicoDate.getFullYear()}-${String(servicoDate.getMonth() + 1).padStart(2, '0')}`;
       return servicoMonth === selectedMonth;
     } else {
+      // Filtrar por data de recebimento
       if (!servico.data_recebimento_comissao) return false;
       const recebimentoDate = new Date(servico.data_recebimento_comissao);
       const recebimentoMonth = `${recebimentoDate.getFullYear()}-${String(recebimentoDate.getMonth() + 1).padStart(2, '0')}`;
@@ -226,6 +241,76 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
               <p className="text-sm text-muted-foreground mb-1">Pendente</p>
               <p className="text-2xl font-bold text-orange-600">{formatCurrency(totalComissoes - totalRecebido)}</p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* TABELA DETALHADA DE SERVIÇOS */}
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle>Detalhamento dos Serviços</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data Serviço</TableHead>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Descrição</TableHead>
+                  <TableHead className="text-right">Valor Bruto</TableHead>
+                  <TableHead className="text-right">% Comissão</TableHead>
+                  <TableHead className="text-right">Comissão Total</TableHead>
+                  <TableHead className="text-right">Recebido</TableHead>
+                  <TableHead className="text-right">Pendente</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Data Recebimento</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredServicos.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
+                      Nenhum serviço encontrado com os filtros selecionados
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredServicos
+                    .sort((a, b) => new Date(b.data_servico).getTime() - new Date(a.data_servico).getTime())
+                    .map((servico) => {
+                      const comissaoTotal = Math.round(servico.valor_bruto * servico.porcentagem_comissao) / 100;
+                      const comissaoPendente = Math.max(0, comissaoTotal - servico.comissao_recebida);
+                      const isPendente = servico.comissao_recebida === 0;
+                      const isParcial = servico.comissao_recebida > 0 && servico.comissao_recebida < comissaoTotal;
+                      const isCompleto = servico.comissao_recebida >= comissaoTotal;
+
+                      return (
+                        <TableRow key={servico.id}>
+                          <TableCell className="whitespace-nowrap">{formatDate(servico.data_servico)}</TableCell>
+                          <TableCell className="font-medium">{getClienteName(servico.cliente_id)}</TableCell>
+                          <TableCell className="max-w-xs truncate">{servico.descricao || "-"}</TableCell>
+                          <TableCell className="text-right whitespace-nowrap">{formatCurrency(servico.valor_bruto)}</TableCell>
+                          <TableCell className="text-right">{servico.porcentagem_comissao}%</TableCell>
+                          <TableCell className="text-right font-semibold whitespace-nowrap">{formatCurrency(comissaoTotal)}</TableCell>
+                          <TableCell className="text-right text-green-600 whitespace-nowrap">{formatCurrency(servico.comissao_recebida)}</TableCell>
+                          <TableCell className="text-right text-orange-600 whitespace-nowrap">{formatCurrency(comissaoPendente)}</TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant={isPendente ? "destructive" : isParcial ? "secondary" : "default"}
+                              className={isParcial ? "bg-orange-500 hover:bg-orange-600" : ""}
+                            >
+                              {isPendente ? "Pendente" : isParcial ? "Parcial" : "Recebido"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {servico.data_recebimento_comissao ? formatDate(servico.data_recebimento_comissao) : "-"}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                )}
+              </TableBody>
+            </Table>
           </div>
         </CardContent>
       </Card>
