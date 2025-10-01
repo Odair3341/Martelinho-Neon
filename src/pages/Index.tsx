@@ -201,7 +201,7 @@ const Index = () => {
 
     const comissaoTotal = Math.round(service.valor_bruto * service.porcentagem_comissao) / 100;
     const novaComissaoRecebida = Math.round((service.comissao_recebida + amount) * 100) / 100;
-    const dataRecebimento = new Date().toISOString(); // ✅ Data atual
+    const dataRecebimento = new Date().toISOString();
 
     try {
       // 1. Update the service with the new received amount AND date
@@ -210,7 +210,7 @@ const Index = () => {
         .update({ 
           comissao_recebida: novaComissaoRecebida,
           quitado: novaComissaoRecebida >= comissaoTotal,
-          data_recebimento_comissao: dataRecebimento // ✅ GRAVA A DATA
+          data_recebimento_comissao: dataRecebimento
         })
         .eq('id', service.id);
 
@@ -222,7 +222,7 @@ const Index = () => {
         .insert({
           servico_id: service.id,
           valor: amount,
-          data_recebimento: dataRecebimento, // ✅ Mesma data
+          data_recebimento: dataRecebimento,
           status: 'recebido',
           user_id: user.id
         });
@@ -242,6 +242,49 @@ const Index = () => {
       toast({
         title: "Erro ao processar recebimento",
         description: "Não foi possível salvar o recebimento. Verifique o console.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // ✅ NOVA FUNÇÃO: Desfazer recebimento de comissão
+  const handleUndoCommission = async (serviceId: number) => {
+    if (!user) return;
+
+    try {
+      // 1. Delete all commission records for this service
+      const { error: deleteError } = await supabase
+        .from('comissoes')
+        .delete()
+        .eq('servico_id', serviceId);
+
+      if (deleteError) throw deleteError;
+
+      // 2. Reset the service
+      const { error: updateError } = await supabase
+        .from('servicos')
+        .update({
+          comissao_recebida: 0,
+          quitado: false,
+          data_recebimento_comissao: null
+        })
+        .eq('id', serviceId);
+
+      if (updateError) throw updateError;
+
+      // 3. Reload all data
+      await loadSharedData();
+
+      toast({
+        title: "Recebimento desfeito!",
+        description: "O recebimento da comissão foi cancelado com sucesso."
+      });
+
+    } catch (error: any) {
+      console.error('Erro ao desfazer recebimento:', error);
+      toast({
+        title: "Erro ao desfazer recebimento",
+        description: "Não foi possível desfazer o recebimento. Verifique o console.",
         variant: "destructive",
       });
     }
@@ -312,7 +355,14 @@ const Index = () => {
       case "despesas":
         return <DespesasTab data={businessData} onUpdateData={handleUpdateData} />;
       case "comissoes":
-        return <ComissoesTab data={businessData} onUpdateData={handleUpdateData} onReceiveCommission={handleReceiveCommission} />;
+        return (
+          <ComissoesTab 
+            data={businessData} 
+            onUpdateData={handleUpdateData} 
+            onReceiveCommission={handleReceiveCommission}
+            onUndoCommission={handleUndoCommission}
+          />
+        );
       case "relatorios":
         return <RelatoriosTab data={businessData} />;
       case "backup":
