@@ -99,7 +99,7 @@ const Index = () => {
 
       setBusinessData(loadedData);
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading shared data:', error);
       toast({
         title: "Erro ao carregar dados",
@@ -135,7 +135,7 @@ const Index = () => {
         title: "Dados importados com sucesso!",
         description: `A base de dados foi substituída com o backup.`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error importing data:', error);
       toast({
         title: "Erro ao importar dados",
@@ -185,7 +185,7 @@ const Index = () => {
       // After all operations, reload the single source of truth
       await loadSharedData();
 
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erro ao salvar dados:', error);
       toast({
         title: "Erro ao salvar",
@@ -237,7 +237,7 @@ const Index = () => {
         description: `Valor de ${amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} recebido em ${new Date(dataRecebimento).toLocaleString('pt-BR')}.`
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao receber comissão:', error);
       toast({
         title: "Erro ao processar recebimento",
@@ -280,7 +280,7 @@ const Index = () => {
         description: "O recebimento da comissão foi cancelado com sucesso."
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao desfazer recebimento:', error);
       toast({
         title: "Erro ao desfazer recebimento",
@@ -326,7 +326,7 @@ const Index = () => {
         description: `${servicesToMigrate.length} registros de pagamentos antigos foram migrados com sucesso.`
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro durante a migração:", error);
       toast({ 
         title: "Erro na Migração", 
