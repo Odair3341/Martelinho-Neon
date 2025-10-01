@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { BusinessData } from "@/types/business";
+import { BusinessData, Servico } from "@/types/business";
 import { Header } from "@/components/business/Header";
 import { Navigation } from "@/components/business/Navigation";
 import { Dashboard } from "@/components/business/Dashboard";
@@ -103,29 +103,6 @@ const Index = () => {
         data_cadastro: cliente.created_at || ''
       }));
 
-      const mappedServicos = (servicosResult.data || []).map(servico => ({
-        id: servico.id,
-        data_servico: servico.data_servico,
-        veiculo: servico.veiculo,
-        placa: servico.placa,
-        valor_bruto: Number(servico.valor_bruto),
-        porcentagem_comissao: Number(servico.porcentagem_comissao),
-        observacao: servico.observacao || '',
-        valor_pago: Number(servico.valor_pago),
-        quitado: servico.quitado,
-        comissao_recebida: Number(servico.comissao_recebida),
-        cliente_id: servico.cliente_id
-      }));
-
-      const mappedDespesas = (despesasResult.data || []).map(despesa => ({
-        id: despesa.id,
-        descricao: despesa.descricao,
-        valor: Number(despesa.valor),
-        data_vencimento: despesa.data_vencimento,
-        pago: despesa.pago,
-        categoria: 'Geral' // Default category
-      }));
-
       const mappedComissoes = (comissoesResult.data || []).map(comissao => ({
         id: comissao.id,
         servico_id: comissao.servico_id,
@@ -134,6 +111,37 @@ const Index = () => {
         status: comissao.status as 'pendente' | 'recebido' | 'atrasado',
         created_at: comissao.created_at,
         updated_at: comissao.updated_at
+      }));
+
+      const mappedServicos = (servicosResult.data || []).map(servico => {
+        // Buscar comissão recebida para este serviço para inferir a data de recebimento
+        const comissaoRecebida = mappedComissoes.find(c => 
+          c.servico_id === servico.id && c.status === 'recebido'
+        );
+        
+        return {
+          id: servico.id,
+          data_servico: servico.data_servico,
+          veiculo: servico.veiculo,
+          placa: servico.placa,
+          valor_bruto: Number(servico.valor_bruto),
+          porcentagem_comissao: Number(servico.porcentagem_comissao),
+          observacao: servico.observacao || '',
+          valor_pago: Number(servico.valor_pago),
+          quitado: servico.quitado,
+          comissao_recebida: Number(servico.comissao_recebida),
+          cliente_id: servico.cliente_id,
+          data_recebimento_comissao: comissaoRecebida?.data_recebimento || undefined
+        };
+      });
+
+      const mappedDespesas = (despesasResult.data || []).map(despesa => ({
+        id: despesa.id,
+        descricao: despesa.descricao,
+        valor: Number(despesa.valor),
+        data_vencimento: despesa.data_vencimento,
+        pago: despesa.pago,
+        categoria: 'Geral' // Default category
       }));
 
       const loadedData: BusinessData = {
@@ -341,6 +349,124 @@ const Index = () => {
     }
   };
 
+  const handleReceiveCommission = async (servico: Servico, amount: number) => {
+    if (!user) return;
+
+    try {
+      // Criar data atual no timezone local para evitar problemas de conversão
+      const hoje = new Date();
+      const dataRecebimento = hoje.getFullYear() + '-' + 
+        String(hoje.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(hoje.getDate()).padStart(2, '0');
+      
+      // Inserir nova comissão na tabela comissoes
+      const { error: comissaoError } = await supabase
+        .from('comissoes')
+        .insert({
+          servico_id: servico.id,
+          valor: amount,
+          data_recebimento: dataRecebimento,
+          status: 'recebido',
+          user_id: user.id
+        });
+
+      if (comissaoError) throw comissaoError;
+
+      // Atualizar o serviço com o valor recebido e a data de recebimento
+      const novaComissaoRecebida = servico.comissao_recebida + amount;
+      
+      const { error: servicoError } = await supabase
+        .from('servicos')
+        .update({ 
+          comissao_recebida: novaComissaoRecebida
+        })
+        .eq('id', servico.id);
+
+      if (servicoError) throw servicoError;
+
+      // Atualizar o estado local
+      setBusinessData(currentData => ({
+        ...currentData,
+        servicos: currentData.servicos.map(s =>
+          s.id === servico.id 
+            ? { 
+                ...s, 
+                comissao_recebida: novaComissaoRecebida,
+                data_recebimento_comissao: dataRecebimento
+              }
+            : s
+        ),
+      }));
+
+      toast({
+        title: "Comissão recebida!",
+        description: `R$ ${amount.toFixed(2)} foi marcado como recebido.`,
+      });
+    } catch (error: any) {
+      console.error('Erro ao receber comissão:', error);
+      toast({
+        title: "Erro ao receber comissão",
+        description: "Não foi possível marcar a comissão como recebida.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUndoCommission = async (servicoId: number) => {
+    if (!user) return;
+
+    try {
+      // Encontrar o serviço
+      const servico = businessData.servicos.find(s => s.id === servicoId);
+      if (!servico) return;
+
+      // Remover comissões recebidas da tabela comissoes
+      const { error: comissaoError } = await supabase
+        .from('comissoes')
+        .delete()
+        .eq('servico_id', servicoId)
+        .eq('status', 'recebido');
+
+      if (comissaoError) throw comissaoError;
+
+      // Resetar o valor recebido no serviço
+      const { error: servicoError } = await supabase
+        .from('servicos')
+        .update({ 
+          comissao_recebida: 0
+        })
+        .eq('id', servicoId);
+
+      if (servicoError) throw servicoError;
+
+      // Atualizar o estado local
+      setBusinessData(currentData => ({
+        ...currentData,
+        servicos: currentData.servicos.map(s =>
+          s.id === servicoId 
+            ? { 
+                ...s, 
+                comissao_recebida: 0,
+                data_recebimento_comissao: undefined
+              }
+            : s
+        ),
+      }));
+
+      toast({
+        title: "Comissão desfeita!",
+        description: "O recebimento da comissão foi desfeito.",
+      });
+    } catch (error: any) {
+      console.error('Erro ao desfazer comissão:', error);
+      toast({
+        title: "Erro ao desfazer comissão",
+        description: "Não foi possível desfazer o recebimento da comissão.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast({
@@ -360,7 +486,12 @@ const Index = () => {
       case "despesas":
         return <DespesasTab data={businessData} onUpdateData={handleUpdateData} />;
       case "comissoes":
-        return <ComissoesTab data={businessData} onUpdateData={handleUpdateData} />;
+        return <ComissoesTab 
+          data={businessData} 
+          onUpdateData={handleUpdateData} 
+          onReceiveCommission={handleReceiveCommission}
+          onUndoCommission={handleUndoCommission}
+        />;
       case "relatorios":
         return <RelatoriosTab data={businessData} />;
       case "backup":

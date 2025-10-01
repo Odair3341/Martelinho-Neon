@@ -20,6 +20,7 @@ export interface Servico {
   quitado: boolean;
   comissao_recebida: number;
   cliente_id: number;
+  data_recebimento_comissao?: string; // Data quando a comissão foi recebida
 }
 
 export interface Despesa {

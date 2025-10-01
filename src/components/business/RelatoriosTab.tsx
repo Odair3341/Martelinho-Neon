@@ -13,12 +13,12 @@ interface RelatoriosTabProps {
 }
 
 export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
-  const [selectedMonth, setSelectedMonth] = useState<string>("setembro-2025");
+  const [selectedMonth, setSelectedMonth] = useState<string>("todos");
   const [dateFilterType, setDateFilterType] = useState<"recebimento" | "servico">("recebimento");
   const [statusFilter, setStatusFilter] = useState<string>("recebidos");
   const [clienteFilter, setClienteFilter] = useState<string>("");
-  const [dataInicio, setDataInicio] = useState<string>("01/09/2025");
-  const [dataFim, setDataFim] = useState<string>("30/09/2025");
+  const [dataInicio, setDataInicio] = useState<string>("");
+  const [dataFim, setDataFim] = useState<string>("");
 
   // Função para formatar moeda
   const formatCurrency = (value: number) => {
@@ -88,14 +88,15 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
 
   // Calcular porcentagem de recebimento
   const percentualRecebido = totalComissoes > 0 ? (totalRecebido / totalComissoes) * 100 : 0;
+  const totalPendente = totalComissoes - totalRecebido;
 
   const clearFilters = () => {
-    setSelectedMonth("setembro-2025");
+    setSelectedMonth("todos");
     setDateFilterType("recebimento");
     setStatusFilter("recebidos");
     setClienteFilter("");
-    setDataInicio("01/09/2025");
-    setDataFim("30/09/2025");
+    setDataInicio("");
+    setDataFim("");
   };
 
   const exportCSV = () => {
@@ -203,9 +204,16 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-600">
-                  <SelectItem value="setembro-2025">Setembro de 2025</SelectItem>
-                  <SelectItem value="agosto-2025">Agosto de 2025</SelectItem>
-                  <SelectItem value="julho-2025">Julho de 2025</SelectItem>
+                  <SelectItem value="todos">Todos os Meses</SelectItem>
+                  {availableMonths.map(month => {
+                    const [year, monthNum] = month.split('-');
+                    const monthName = monthNames[parseInt(monthNum) - 1];
+                    return (
+                      <SelectItem key={month} value={month}>
+                        {monthName} de {year}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -269,7 +277,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Total Comissões (Filtrado)</p>
-                <p className="text-3xl font-bold text-blue-600">R$ 0,00</p>
+                <p className="text-3xl font-bold text-blue-600">R$ {totalComissoes.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <DollarSign className="h-8 w-8 text-blue-500" />
             </div>
@@ -282,7 +290,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Recebidos (Filtrado)</p>
-                <p className="text-3xl font-bold text-green-600">R$ 0,00</p>
+                <p className="text-3xl font-bold text-green-600">R$ {totalRecebido.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <CheckCircle2 className="h-8 w-8 text-green-500" />
             </div>
@@ -295,7 +303,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Pendentes (Filtrado)</p>
-                <p className="text-3xl font-bold text-orange-600">R$ 0,00</p>
+                <p className="text-3xl font-bold text-orange-600">R$ {totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-orange-500" />
             </div>
@@ -306,7 +314,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
       {/* TABELA DETALHADA DE COMISSÕES */}
       <Card className="bg-gray-900 text-white">
         <CardHeader>
-          <CardTitle className="text-white">Detalhamento das Comissões (0 serviços)</CardTitle>
+          <CardTitle className="text-white">Detalhamento das Comissões ({totalServicos} serviços)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -326,11 +334,63 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell colSpan={10} className="text-center text-gray-400 py-12">
-                    Nenhum serviço encontrado com os filtros selecionados
-                  </TableCell>
-                </TableRow>
+                {filteredServicos.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={10} className="text-center text-gray-400 py-12">
+                      Nenhum serviço encontrado com os filtros selecionados
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredServicos.map((servico) => {
+                    const comissaoTotal = Math.round(servico.valor_bruto * servico.porcentagem_comissao) / 100;
+                    const pendente = comissaoTotal - servico.comissao_recebida;
+                    const cliente = data.clientes.find(c => c.id === servico.cliente_id);
+                    
+                    return (
+                      <TableRow key={servico.id} className="border-gray-700">
+                        <TableCell className="text-gray-300">
+                          {new Date(servico.data_servico + 'T00:00:00').toLocaleDateString('pt-BR')}
+                        </TableCell>
+                        <TableCell className="text-gray-300">
+                          {servico.data_recebimento_comissao ? 
+                            new Date(servico.data_recebimento_comissao + 'T00:00:00').toLocaleDateString('pt-BR') : 
+                            '-'
+                          }
+                        </TableCell>
+                        <TableCell className="text-gray-300">
+                          {cliente?.nome || 'Cliente não encontrado'}
+                        </TableCell>
+                        <TableCell className="text-gray-300">
+                          {servico.veiculo} - {servico.placa}
+                        </TableCell>
+                        <TableCell className="text-gray-300 text-right">
+                          R$ {servico.valor_bruto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell className="text-gray-300 text-right">
+                          {servico.porcentagem_comissao}%
+                        </TableCell>
+                        <TableCell className="text-gray-300 text-right">
+                          R$ {comissaoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell className="text-gray-300 text-right">
+                          R$ {servico.comissao_recebida.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell className="text-gray-300 text-right">
+                          R$ {pendente.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            servico.comissao_recebida >= comissaoTotal 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-orange-100 text-orange-800'
+                          }`}>
+                            {servico.comissao_recebida >= comissaoTotal ? 'Recebido' : 'Pendente'}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </div>
