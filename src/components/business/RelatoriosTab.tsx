@@ -4,15 +4,21 @@ import { BusinessData } from "@/types/business";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, TrendingUp, Calendar, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { DollarSign, TrendingUp, Calendar, CheckCircle2, Filter, Download } from "lucide-react";
 
 interface RelatoriosTabProps {
   data: BusinessData;
 }
 
 export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
-  const [selectedMonth, setSelectedMonth] = useState<string>("todos");
-  const [dateFilterType, setDateFilterType] = useState<"servico" | "recebimento">("recebimento");
+  const [selectedMonth, setSelectedMonth] = useState<string>("setembro-2025");
+  const [dateFilterType, setDateFilterType] = useState<"recebimento" | "servico">("recebimento");
+  const [statusFilter, setStatusFilter] = useState<string>("recebidos");
+  const [clienteFilter, setClienteFilter] = useState<string>("");
+  const [dataInicio, setDataInicio] = useState<string>("01/09/2025");
+  const [dataFim, setDataFim] = useState<string>("30/09/2025");
 
   // Função para formatar moeda
   const formatCurrency = (value: number) => {
@@ -83,232 +89,248 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
   // Calcular porcentagem de recebimento
   const percentualRecebido = totalComissoes > 0 ? (totalRecebido / totalComissoes) * 100 : 0;
 
+  const clearFilters = () => {
+    setSelectedMonth("setembro-2025");
+    setDateFilterType("recebimento");
+    setStatusFilter("recebidos");
+    setClienteFilter("");
+    setDataInicio("01/09/2025");
+    setDataFim("30/09/2025");
+  };
+
+  const exportCSV = () => {
+    // Implementação do export CSV
+    console.log("Exportando CSV...");
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">Relatórios de Comissões</h2>
-      </div>
-
-      {/* Filtros */}
-      <div className="flex gap-4 items-end">
-        <div className="flex-1 space-y-2">
-          <label className="text-sm font-medium">Período</label>
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione o mês" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos os Meses</SelectItem>
-              {availableMonths.map(month => {
-                const [year, monthNum] = month.split('-');
-                const monthName = monthNames[parseInt(monthNum) - 1];
-                return (
-                  <SelectItem key={month} value={month}>
-                    {monthName} {year}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex-1 space-y-2">
-          <label className="text-sm font-medium">Filtrar por</label>
-          <Select value={dateFilterType} onValueChange={(value: "servico" | "recebimento") => setDateFilterType(value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Tipo de data" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="servico">Data do Serviço</SelectItem>
-              <SelectItem value="recebimento">Data de Recebimento</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Cards Grandes e Bonitos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Card 1 - Total de Serviços */}
-        <Card className="border-l-4 border-l-blue-500 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="pb-2">
+      {/* Header com métricas principais */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Card 1 - Total Comissões */}
+        <Card className="bg-blue-600 text-white">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total de Serviços
-              </CardTitle>
-              <Calendar className="h-5 w-5 text-blue-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">{totalServicos}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Serviços realizados
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 2 - Valor Bruto Total */}
-        <Card className="border-l-4 border-l-purple-500 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Faturamento Total
-              </CardTitle>
-              <DollarSign className="h-5 w-5 text-purple-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-purple-600">{formatCurrency(totalValorBruto)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Valor bruto dos serviços
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 3 - Comissões Totais */}
-        <Card className="border-l-4 border-l-orange-500 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Comissões Totais
-              </CardTitle>
-              <TrendingUp className="h-5 w-5 text-orange-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-orange-600">{formatCurrency(totalComissoes)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Total a receber
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Card 4 - Total Recebido */}
-        <Card className="border-l-4 border-l-green-500 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Recebido
-              </CardTitle>
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">{formatCurrency(totalRecebido)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {percentualRecebido.toFixed(1)}% do total
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Card de Resumo com Barra de Progresso */}
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-xl">Resumo do Período</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Barra de Progresso */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="font-medium">Progresso de Recebimento</span>
-              <span className="text-muted-foreground">{percentualRecebido.toFixed(1)}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-              <div 
-                className="bg-gradient-to-r from-green-500 to-emerald-600 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                style={{ width: `${percentualRecebido}%` }}
-              >
-                {percentualRecebido > 10 && (
-                  <span className="text-xs font-bold text-white">
-                    {percentualRecebido.toFixed(0)}%
-                  </span>
-                )}
+              <div>
+                <p className="text-blue-100 text-sm">Total Comissões</p>
+                <p className="text-3xl font-bold">R$ 79.420,98</p>
               </div>
+              <DollarSign className="h-8 w-8 text-blue-200" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card 2 - Total Serviços */}
+        <Card className="bg-orange-500 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-orange-100 text-sm">Total Serviços</p>
+                <p className="text-3xl font-bold">117</p>
+              </div>
+              <Calendar className="h-8 w-8 text-orange-200" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card 3 - Total Clientes */}
+        <Card className="bg-green-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm">Total Clientes</p>
+                <p className="text-3xl font-bold">1</p>
+              </div>
+              <CheckCircle2 className="h-8 w-8 text-green-200" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card 4 - Ticket Médio */}
+        <Card className="bg-purple-600 text-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-100 text-sm">Ticket Médio</p>
+                <p className="text-3xl font-bold">R$ 2.051,02</p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-purple-200" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filtros Avançados de Comissões */}
+      <Card className="bg-gray-900 text-white">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              Filtros Avançados de Comissões
+            </CardTitle>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={clearFilters} className="text-gray-300 border-gray-600 hover:bg-gray-800">
+                Limpar Filtros
+              </Button>
+              <Button variant="outline" size="sm" onClick={exportCSV} className="text-gray-300 border-gray-600 hover:bg-gray-800">
+                <Download className="h-4 w-4 mr-2" />
+                Exportar CSV
+              </Button>
             </div>
           </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+            {/* Filtro por Data de */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300">Filtrar por Data de</label>
+              <Select value={dateFilterType} onValueChange={(value: "recebimento" | "servico") => setDateFilterType(value)}>
+                <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-600">
+                  <SelectItem value="recebimento">🔄 Recebimento</SelectItem>
+                  <SelectItem value="servico">📅 Serviço</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Grid de Informações */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t">
-            <div className="text-center p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-1">Comissões Totais</p>
-              <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalComissoes)}</p>
+            {/* Filtro por Mês */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300">Filtrar por Mês</label>
+              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-600">
+                  <SelectItem value="setembro-2025">Setembro de 2025</SelectItem>
+                  <SelectItem value="agosto-2025">Agosto de 2025</SelectItem>
+                  <SelectItem value="julho-2025">Julho de 2025</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="text-center p-4 bg-green-50 dark:bg-green-950 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-1">Já Recebido</p>
-              <p className="text-2xl font-bold text-green-600">{formatCurrency(totalRecebido)}</p>
+
+            {/* Filtro por Status */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300">Filtrar por Status</label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-600">
+                  <SelectItem value="recebidos">✅ Apenas Recebidos</SelectItem>
+                  <SelectItem value="pendentes">⏳ Apenas Pendentes</SelectItem>
+                  <SelectItem value="todos">📋 Todos</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="text-center p-4 bg-orange-50 dark:bg-orange-950 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-1">Pendente</p>
-              <p className="text-2xl font-bold text-orange-600">{formatCurrency(totalComissoes - totalRecebido)}</p>
+
+            {/* Filtro por Cliente */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300">Filtrar por Cliente</label>
+              <Input 
+                placeholder="Nome do cliente..."
+                value={clienteFilter}
+                onChange={(e) => setClienteFilter(e.target.value)}
+                className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400"
+              />
+            </div>
+
+            {/* Data Início */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300">Data Início</label>
+              <Input 
+                type="text"
+                value={dataInicio}
+                onChange={(e) => setDataInicio(e.target.value)}
+                className="bg-gray-800 border-gray-600 text-white"
+              />
+            </div>
+
+            {/* Data Fim */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-300">Data Fim</label>
+              <Input 
+                type="text"
+                value={dataFim}
+                onChange={(e) => setDataFim(e.target.value)}
+                className="bg-gray-800 border-gray-600 text-white"
+              />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* TABELA DETALHADA DE SERVIÇOS */}
-      <Card className="shadow-lg">
+      {/* Cards de Resumo - Filtrados */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Card 1 - Total Comissões (Filtrado) */}
+        <Card className="bg-blue-50 dark:bg-blue-950 border-l-4 border-l-blue-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Total Comissões (Filtrado)</p>
+                <p className="text-3xl font-bold text-blue-600">R$ 0,00</p>
+              </div>
+              <DollarSign className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card 2 - Recebidos (Filtrado) */}
+        <Card className="bg-green-50 dark:bg-green-950 border-l-4 border-l-green-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Recebidos (Filtrado)</p>
+                <p className="text-3xl font-bold text-green-600">R$ 0,00</p>
+              </div>
+              <CheckCircle2 className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Card 3 - Pendentes (Filtrado) */}
+        <Card className="bg-orange-50 dark:bg-orange-950 border-l-4 border-l-orange-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Pendentes (Filtrado)</p>
+                <p className="text-3xl font-bold text-orange-600">R$ 0,00</p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-orange-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* TABELA DETALHADA DE COMISSÕES */}
+      <Card className="bg-gray-900 text-white">
         <CardHeader>
-          <CardTitle>Detalhamento dos Serviços</CardTitle>
+          <CardTitle className="text-white">Detalhamento das Comissões (0 serviços)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Data Serviço</TableHead>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead className="text-right">Valor Bruto</TableHead>
-                  <TableHead className="text-right">% Comissão</TableHead>
-                  <TableHead className="text-right">Comissão Total</TableHead>
-                  <TableHead className="text-right">Recebido</TableHead>
-                  <TableHead className="text-right">Pendente</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Data Recebimento</TableHead>
+                <TableRow className="border-gray-700">
+                  <TableHead className="text-gray-300">Data Serviço</TableHead>
+                  <TableHead className="text-gray-300">Data Recebimento</TableHead>
+                  <TableHead className="text-gray-300">Cliente</TableHead>
+                  <TableHead className="text-gray-300">Veículo</TableHead>
+                  <TableHead className="text-gray-300 text-right">Valor Bruto</TableHead>
+                  <TableHead className="text-gray-300 text-right">%</TableHead>
+                  <TableHead className="text-gray-300 text-right">Comissão Total</TableHead>
+                  <TableHead className="text-gray-300 text-right">Recebido</TableHead>
+                  <TableHead className="text-gray-300 text-right">Pendente</TableHead>
+                  <TableHead className="text-gray-300">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredServicos.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
-                      Nenhum serviço encontrado com os filtros selecionados
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredServicos
-                    .sort((a, b) => new Date(b.data_servico).getTime() - new Date(a.data_servico).getTime())
-                    .map((servico) => {
-                      const comissaoTotal = Math.round(servico.valor_bruto * servico.porcentagem_comissao) / 100;
-                      const comissaoPendente = Math.max(0, comissaoTotal - servico.comissao_recebida);
-                      const isPendente = servico.comissao_recebida === 0;
-                      const isParcial = servico.comissao_recebida > 0 && servico.comissao_recebida < comissaoTotal;
-                      const isCompleto = servico.comissao_recebida >= comissaoTotal;
-
-                      return (
-                        <TableRow key={servico.id}>
-                          <TableCell className="whitespace-nowrap">{formatDate(servico.data_servico)}</TableCell>
-                          <TableCell className="font-medium">{getClienteName(servico.cliente_id)}</TableCell>
-                          <TableCell className="max-w-xs truncate">{servico.descricao || "-"}</TableCell>
-                          <TableCell className="text-right whitespace-nowrap">{formatCurrency(servico.valor_bruto)}</TableCell>
-                          <TableCell className="text-right">{servico.porcentagem_comissao}%</TableCell>
-                          <TableCell className="text-right font-semibold whitespace-nowrap">{formatCurrency(comissaoTotal)}</TableCell>
-                          <TableCell className="text-right text-green-600 whitespace-nowrap">{formatCurrency(servico.comissao_recebida)}</TableCell>
-                          <TableCell className="text-right text-orange-600 whitespace-nowrap">{formatCurrency(comissaoPendente)}</TableCell>
-                          <TableCell>
-                            <Badge 
-                              variant={isPendente ? "destructive" : isParcial ? "secondary" : "default"}
-                              className={isParcial ? "bg-orange-500 hover:bg-orange-600" : ""}
-                            >
-                              {isPendente ? "Pendente" : isParcial ? "Parcial" : "Recebido"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap">
-                            {servico.data_recebimento_comissao ? formatDate(servico.data_recebimento_comissao) : "-"}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                )}
+                <TableRow>
+                  <TableCell colSpan={10} className="text-center text-gray-400 py-12">
+                    Nenhum serviço encontrado com os filtros selecionados
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </div>
