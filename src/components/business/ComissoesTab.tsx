@@ -116,7 +116,8 @@ export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: Comiss
         return {
           ...servico,
           comissao_recebida: 0,
-          quitado: false
+          quitado: false,
+          data_recebimento_comissao: undefined // ✅ Remove a data ao desfazer
         };
       }
       return servico;
@@ -199,12 +200,13 @@ export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: Comiss
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Calendar className="h-5 w-5 text-primary" />
-              <span>Filtros de Relatório</span>
+              <span>Filtros</span>
             </div>
             <Button 
               onClick={exportarRelatorio}
               className="bg-accent hover:bg-accent/90"
               disabled={servicosFiltrados.length === 0}
+              size="sm"
             >
               <Download className="h-4 w-4 mr-2" />
               Exportar CSV
@@ -232,6 +234,7 @@ export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: Comiss
                 })}
               </select>
             </div>
+
             <div>
               <label className="text-sm font-medium mb-2 block">Filtrar por Status</label>
               <select 
@@ -249,7 +252,7 @@ export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: Comiss
         </CardContent>
       </Card>
 
-      {/* Resumo das Comissões Filtradas */}
+      {/* Cards de Estatísticas Filtradas */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="bg-gradient-card border-0 shadow-soft">
           <CardContent className="p-6">
@@ -260,7 +263,6 @@ export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: Comiss
               <div>
                 <p className="text-2xl font-bold">{formatCurrency(totalComissoes)}</p>
                 <p className="text-sm text-muted-foreground">Total Filtrado</p>
-                <p className="text-xs text-muted-foreground">{servicosFiltrados.length} serviços</p>
               </div>
             </div>
           </CardContent>
@@ -274,10 +276,7 @@ export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: Comiss
               </div>
               <div>
                 <p className="text-2xl font-bold text-success">{formatCurrency(comissoesRecebidas)}</p>
-                <p className="text-sm text-muted-foreground">Já Recebido</p>
-                <p className="text-xs text-muted-foreground">
-                  {Math.round((comissoesRecebidas / totalComissoes * 100) || 0)}% do filtrado
-                </p>
+                <p className="text-sm text-muted-foreground">Recebido</p>
               </div>
             </div>
           </CardContent>
@@ -292,9 +291,6 @@ export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: Comiss
               <div>
                 <p className="text-2xl font-bold text-warning">{formatCurrency(comissoesPendentes)}</p>
                 <p className="text-sm text-muted-foreground">Pendente</p>
-                <p className="text-xs text-muted-foreground">
-                  {servicosPendentes.length} serviços
-                </p>
               </div>
             </div>
           </CardContent>
@@ -307,116 +303,134 @@ export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: Comiss
                 <TrendingUp className="h-6 w-6 text-accent" />
               </div>
               <div>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl font-bold text-accent">
                   {Math.round((comissoesRecebidas / totalComissoes * 100) || 0)}%
                 </p>
                 <p className="text-sm text-muted-foreground">Progresso</p>
-                <div className="w-full bg-muted rounded-full h-2 mt-1">
-                  <div
-                    className="bg-accent h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${(comissoesRecebidas / totalComissoes * 100) || 0}%` }}
-                  ></div>
-                </div>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Detalhamento das Comissões */}
+      {/* Barra de Progresso */}
+      <Card className="shadow-medium">
+        <CardContent className="p-6">
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="font-medium">Progresso de Recebimento</span>
+              <span className="text-muted-foreground">
+                {servicosComComissao.length} de {servicosFiltrados.length} serviços
+              </span>
+            </div>
+            <div className="w-full bg-muted rounded-full h-4">
+              <div
+                className="bg-gradient-to-r from-success to-accent h-4 rounded-full transition-all duration-300"
+                style={{ width: `${(comissoesRecebidas / totalComissoes * 100) || 0}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{formatCurrency(comissoesRecebidas)} recebido</span>
+              <span>{formatCurrency(comissoesPendentes)} pendente</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tabela de Comissões */}
       <Card className="shadow-medium">
         <CardHeader>
-          <CardTitle>Detalhamento das Comissões</CardTitle>
+          <CardTitle>Detalhamento de Comissões</CardTitle>
         </CardHeader>
         <CardContent>
           {servicosFiltrados.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhum serviço encontrado com os filtros selecionados</p>
+            <div className="text-center py-12 text-muted-foreground">
+              <FileText className="h-16 w-16 mx-auto mb-4 opacity-30" />
+              <p className="text-lg font-medium">Nenhum serviço encontrado</p>
+              <p className="text-sm">Ajuste os filtros para ver os resultados</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b text-left">
-                    <th className="pb-3">Data</th>
-                    <th className="pb-3">Cliente</th>
-                    <th className="pb-3">Veículo</th>
-                    <th className="pb-3">Valor Bruto</th>
-                    <th className="pb-3">%</th>
-                    <th className="pb-3">Comissão</th>
-                    <th className="pb-3">Pago</th>
-                    <th className="pb-3">Status</th>
-                    <th className="pb-3">Ações</th>
+                  <tr className="border-b">
+                    <th className="p-3 text-left">Data</th>
+                    <th className="p-3 text-left">Cliente</th>
+                    <th className="p-3 text-left">Veículo</th>
+                    <th className="p-3 text-left">Valor Bruto</th>
+                    <th className="p-3 text-left">%</th>
+                    <th className="p-3 text-left">Comissão Total</th>
+                    <th className="p-3 text-left">Recebido</th>
+                    <th className="p-3 text-left">Pendente</th>
+                    <th className="p-3 text-left">Status</th>
+                    <th className="p-3 text-left">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {[...servicosFiltrados].sort((a, b) => new Date(b.data_servico).getTime() - new Date(a.data_servico).getTime()).map((servico) => {
                     const comissaoTotal = roundCurrency(servico.valor_bruto * servico.porcentagem_comissao / 100);
                     const comissaoRecebida = roundCurrency(servico.comissao_recebida);
+                    const comissaoPendente = comissaoTotal - comissaoRecebida;
                     const isPendente = comissaoRecebida === 0;
                     const isCompleto = comissaoRecebida >= comissaoTotal;
                     const isParcial = comissaoRecebida > 0 && comissaoRecebida < comissaoTotal;
                     
                     return (
-                      <tr key={servico.id} className="border-b hover:bg-muted/50">
-                        <td className="py-4">
-                          <div className="font-semibold text-primary text-base">
-                            {formatDate(servico.data_servico)}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {formatDateExtended(servico.data_servico)}
-                          </div>
+                      <tr key={servico.id} className="border-b hover:bg-muted/50 transition-colors">
+                        <td className="p-3">
+                          <div className="font-medium">{formatDate(servico.data_servico)}</div>
+                          <div className="text-xs text-muted-foreground">{formatDateExtended(servico.data_servico)}</div>
                         </td>
-                        <td className="py-3">{getClienteName(servico.cliente_id)}</td>
-                        <td className="py-3">
-                          {servico.veiculo}
-                          <br />
-                          <span className="text-xs text-muted-foreground">{servico.placa}</span>
+                        <td className="p-3">{getClienteName(servico.cliente_id)}</td>
+                        <td className="p-3">
+                          <div>{servico.veiculo}</div>
+                          <div className="text-xs text-muted-foreground">{servico.placa}</div>
                         </td>
-                        <td className="py-3">{formatCurrency(servico.valor_bruto)}</td>
-                        <td className="py-3">{servico.porcentagem_comissao}%</td>
-                        <td className="py-3 font-medium">{formatCurrency(comissaoTotal)}</td>
-                        <td className="py-3">
-                          <span className={comissaoRecebida > 0 ? "text-success font-semibold" : "text-warning"}>
+                        <td className="p-3">{formatCurrency(servico.valor_bruto)}</td>
+                        <td className="p-3">{servico.porcentagem_comissao}%</td>
+                        <td className="p-3 font-semibold">{formatCurrency(comissaoTotal)}</td>
+                        <td className="p-3">
+                          <span className={comissaoRecebida > 0 ? "text-success font-semibold" : "text-muted-foreground"}>
                             {formatCurrency(comissaoRecebida)}
                           </span>
-                          {comissaoRecebida > 0 && comissaoRecebida < comissaoTotal && (
-                            <div className="text-xs text-muted-foreground">
-                              Restante: {formatCurrency(comissaoTotal - comissaoRecebida)}
-                            </div>
-                          )}
                         </td>
-                        <td className="py-3">
+                        <td className="p-3">
+                          <span className={comissaoPendente > 0 ? "text-warning font-semibold" : "text-muted-foreground"}>
+                            {formatCurrency(comissaoPendente)}
+                          </span>
+                        </td>
+                        <td className="p-3">
                           <Badge 
                             variant={isPendente ? "secondary" : (isCompleto ? "default" : "outline")}
                             className={
-                              isPendente ? "bg-warning/20 text-warning" : 
-                              isCompleto ? "bg-success/20 text-success" : 
-                              "bg-blue-500/20 text-blue-600"
+                              isPendente ? "bg-warning/20 text-warning border-warning" : 
+                              isCompleto ? "bg-success/20 text-success border-success" : 
+                              "bg-blue-500/20 text-blue-600 border-blue-500"
                             }
                           >
-                            {isPendente ? "Pendente" : (isCompleto ? "Recebido" : "Parcial")}
+                            {isPendente ? "Pendente" : (isCompleto ? "Completo" : "Parcial")}
                           </Badge>
                         </td>
-                        <td className="py-3">
+                        <td className="p-3">
                           <div className="flex space-x-2">
-                            {comissaoTotal > comissaoRecebida && (
+                            {!isCompleto && (
                               <>
                                 <Button
                                   size="sm"
-                                  onClick={() => setReceivingService(servico)}
                                   variant="outline"
-                                  className="border-success text-success hover:bg-success hover:text-white"
+                                  onClick={() => setReceivingService(servico)}
+                                  className="text-xs"
                                 >
-                                  <DollarSign className="h-4 w-4 mr-1" />
-                                  Parcial
+                                  <DollarSign className="h-3 w-3 mr-1" />
+                                  Receber
                                 </Button>
                                 <Button
                                   size="sm"
+                                  variant="outline"
                                   onClick={() => marcarComoRecebido(servico)}
-                                  className="bg-success hover:bg-success/90"
+                                  className="text-xs bg-success/10 hover:bg-success/20"
                                 >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
                                   Tudo
                                 </Button>
                               </>
@@ -424,11 +438,11 @@ export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: Comiss
                             {comissaoRecebida > 0 && (
                               <Button
                                 size="sm"
-                                onClick={() => setUndoingService(servico)}
                                 variant="outline"
-                                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                                onClick={() => setUndoingService(servico)}
+                                className="text-xs text-destructive hover:bg-destructive/10"
                               >
-                                <Undo2 className="h-4 w-4 mr-1" />
+                                <Undo2 className="h-3 w-3 mr-1" />
                                 Desfazer
                               </Button>
                             )}
@@ -450,11 +464,17 @@ export const ComissoesTab = ({ data, onUpdateData, onReceiveCommission }: Comiss
         service={receivingService}
         onConfirm={onReceiveCommission}
       />
+
       <UndoCommissionReceiptDialog
         open={!!undoingService}
         onOpenChange={(open) => !open && setUndoingService(null)}
         service={undoingService}
-        onConfirm={handleUndoReceipt}
+        onConfirm={(service) => {
+          if (typeof service.id === 'number') {
+            handleUndoReceipt(service.id);
+          }
+          setUndoingService(null);
+        }}
       />
     </div>
   );

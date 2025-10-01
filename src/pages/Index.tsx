@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { BusinessData } from "@/types/business";
+import { BusinessData, Servico } from "@/types/business";
 import { Header } from "@/components/business/Header";
 import { Navigation } from "@/components/business/Navigation";
 import { Dashboard } from "@/components/business/Dashboard";
@@ -201,14 +201,16 @@ const Index = () => {
 
     const comissaoTotal = Math.round(service.valor_bruto * service.porcentagem_comissao) / 100;
     const novaComissaoRecebida = Math.round((service.comissao_recebida + amount) * 100) / 100;
+    const dataRecebimento = new Date().toISOString(); // ✅ Data atual
 
     try {
-      // 1. Update the service with the new received amount
+      // 1. Update the service with the new received amount AND date
       const { error: serviceError } = await supabase
         .from('servicos')
         .update({ 
           comissao_recebida: novaComissaoRecebida,
-          quitado: novaComissaoRecebida >= comissaoTotal
+          quitado: novaComissaoRecebida >= comissaoTotal,
+          data_recebimento_comissao: dataRecebimento // ✅ GRAVA A DATA
         })
         .eq('id', service.id);
 
@@ -220,7 +222,7 @@ const Index = () => {
         .insert({
           servico_id: service.id,
           valor: amount,
-          data_recebimento: new Date().toISOString(),
+          data_recebimento: dataRecebimento, // ✅ Mesma data
           status: 'recebido',
           user_id: user.id
         });
@@ -232,7 +234,7 @@ const Index = () => {
 
       toast({
         title: "Recebimento confirmado!",
-        description: `Valor de ${amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} recebido.`
+        description: `Valor de ${amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} recebido em ${new Date(dataRecebimento).toLocaleString('pt-BR')}.`
       });
 
     } catch (error: any) {

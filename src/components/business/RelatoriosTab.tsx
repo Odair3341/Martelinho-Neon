@@ -53,6 +53,16 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
     });
   };
 
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const roundCurrency = (value: number) => {
     return Math.round(value * 100) / 100;
   };
@@ -86,7 +96,8 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
     const passaStatus = filtroStatus === "todos" || 
       (filtroStatus === "pendente" && isPendente) ||
       (filtroStatus === "parcial" && isParcial) ||
-      (filtroStatus === "completo" && isCompleto);
+      (filtroStatus === "completo" && isCompleto) ||
+      (filtroStatus === "recebidos" && comissaoRecebida > 0); // NOVO: filtro só recebidos
     
     const clienteNome = getClienteName(servico.cliente_id).toLowerCase();
     const passaCliente = !filtroCliente || clienteNome.includes(filtroCliente.toLowerCase());
@@ -136,6 +147,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
         'Comissão Total': comissaoTotal,
         'Comissão Recebida': comissaoRecebida,
         'Comissão Pendente': comissaoTotal - comissaoRecebida,
+        'Data Recebimento': servico.data_recebimento_comissao ? formatDateTime(servico.data_recebimento_comissao) : 'Não recebido',
         Status: comissaoRecebida === 0 ? 'Pendente' : (comissaoRecebida >= comissaoTotal ? 'Completo' : 'Parcial')
       };
     });
@@ -170,7 +182,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                 <DollarSign className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{formatCurrency(totalComissoes)}</p>
+                <p className="text-2xl font-bold text-foreground">{formatCurrency(totalComissoes)}</p>
                 <p className="text-sm text-muted-foreground">Total Comissões</p>
               </div>
             </div>
@@ -184,7 +196,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                 <Car className="h-6 w-6 text-accent" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{data.servicos.length}</p>
+                <p className="text-2xl font-bold text-foreground">{data.servicos.length}</p>
                 <p className="text-sm text-muted-foreground">Total Serviços</p>
               </div>
             </div>
@@ -198,7 +210,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                 <Users className="h-6 w-6 text-success" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{data.clientes.length}</p>
+                <p className="text-2xl font-bold text-foreground">{data.clientes.length}</p>
                 <p className="text-sm text-muted-foreground">Total Clientes</p>
               </div>
             </div>
@@ -212,7 +224,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                 <TrendingUp className="h-6 w-6 text-warning" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{formatCurrency(ticketMedio)}</p>
+                <p className="text-2xl font-bold text-foreground">{formatCurrency(ticketMedio)}</p>
                 <p className="text-sm text-muted-foreground">Ticket Médio</p>
               </div>
             </div>
@@ -226,7 +238,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Filter className="h-5 w-5 text-primary" />
-              <span>Filtros Avançados de Comissões</span>
+              <span className="text-foreground">Filtros Avançados de Comissões</span>
             </div>
             <div className="flex space-x-2">
               <Button 
@@ -251,12 +263,12 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <Label htmlFor="filtro_mes">Filtrar por Mês</Label>
+              <Label htmlFor="filtro_mes" className="text-foreground">Filtrar por Mês</Label>
               <select 
                 id="filtro_mes"
                 value={filtroMes}
                 onChange={(e) => setFiltroMes(e.target.value)}
-                className="w-full p-2 border rounded-md mt-1"
+                className="w-full p-2 border rounded-md mt-1 bg-background text-foreground"
               >
                 <option value="todos">Todos os Meses</option>
                 {mesesDisponiveis.map(mes => {
@@ -272,50 +284,51 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
             </div>
 
             <div>
-              <Label htmlFor="filtro_status">Filtrar por Status</Label>
+              <Label htmlFor="filtro_status" className="text-foreground">Filtrar por Status</Label>
               <select 
                 id="filtro_status"
                 value={filtroStatus}
                 onChange={(e) => setFiltroStatus(e.target.value)}
-                className="w-full p-2 border rounded-md mt-1"
+                className="w-full p-2 border rounded-md mt-1 bg-background text-foreground"
               >
                 <option value="todos">Todos os Status</option>
-                <option value="pendente">Pendente</option>
-                <option value="parcial">Parcial</option>
-                <option value="completo">Completo</option>
+                <option value="recebidos">✅ Apenas Recebidos</option>
+                <option value="pendente">⏳ Pendente</option>
+                <option value="parcial">🔵 Parcial</option>
+                <option value="completo">✔️ Completo</option>
               </select>
             </div>
 
             <div>
-              <Label htmlFor="data_inicio">Data de Início</Label>
+              <Label htmlFor="data_inicio" className="text-foreground">Data de Início</Label>
               <Input 
                 id="data_inicio" 
                 type="date" 
                 value={dataInicio} 
                 onChange={(e) => setDataInicio(e.target.value)}
-                className="mt-1"
+                className="mt-1 bg-background text-foreground"
               />
             </div>
 
             <div>
-              <Label htmlFor="data_fim">Data de Fim</Label>
+              <Label htmlFor="data_fim" className="text-foreground">Data de Fim</Label>
               <Input 
                 id="data_fim" 
                 type="date" 
                 value={dataFim} 
                 onChange={(e) => setDataFim(e.target.value)}
-                className="mt-1"
+                className="mt-1 bg-background text-foreground"
               />
             </div>
 
             <div className="md:col-span-2">
-              <Label htmlFor="filtro_cliente">Filtrar por Cliente</Label>
+              <Label htmlFor="filtro_cliente" className="text-foreground">Filtrar por Cliente</Label>
               <Input 
                 id="filtro_cliente" 
                 placeholder="Digite o nome do cliente..."
                 value={filtroCliente}
                 onChange={(e) => setFiltroCliente(e.target.value)}
-                className="mt-1"
+                className="mt-1 bg-background text-foreground"
               />
             </div>
           </div>
@@ -327,13 +340,13 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <FileText className="h-5 w-5" />
-            <span>Resumo das Comissões Filtradas</span>
+            <span className="text-foreground">Resumo das Comissões Filtradas</span>
             <Badge variant="secondary">{servicosFiltrados.length} serviços</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center p-4 bg-white/50 rounded-lg">
+            <div className="text-center p-4 bg-card rounded-lg border">
               <div className="flex items-center justify-center mb-2">
                 <DollarSign className="h-5 w-5 text-primary mr-2" />
                 <p className="text-sm font-medium text-muted-foreground">Total Filtrado</p>
@@ -341,7 +354,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
               <p className="text-3xl font-bold text-primary">{formatCurrency(totalComissoesFiltradas)}</p>
             </div>
 
-            <div className="text-center p-4 bg-white/50 rounded-lg">
+            <div className="text-center p-4 bg-card rounded-lg border">
               <div className="flex items-center justify-center mb-2">
                 <CheckCircle className="h-5 w-5 text-success mr-2" />
                 <p className="text-sm font-medium text-muted-foreground">Recebido</p>
@@ -352,7 +365,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
               </p>
             </div>
 
-            <div className="text-center p-4 bg-white/50 rounded-lg">
+            <div className="text-center p-4 bg-card rounded-lg border">
               <div className="flex items-center justify-center mb-2">
                 <Clock className="h-5 w-5 text-warning mr-2" />
                 <p className="text-sm font-medium text-muted-foreground">Pendente</p>
@@ -363,7 +376,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
               </p>
             </div>
 
-            <div className="text-center p-4 bg-white/50 rounded-lg">
+            <div className="text-center p-4 bg-card rounded-lg border">
               <div className="flex items-center justify-center mb-2">
                 <TrendingUp className="h-5 w-5 text-accent mr-2" />
                 <p className="text-sm font-medium text-muted-foreground">Progresso</p>
@@ -385,7 +398,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
       {/* Tabela Detalhada */}
       <Card className="shadow-medium">
         <CardHeader>
-          <CardTitle>Detalhamento das Comissões Filtradas</CardTitle>
+          <CardTitle className="text-foreground">Detalhamento das Comissões Filtradas</CardTitle>
         </CardHeader>
         <CardContent>
           {servicosFiltrados.length === 0 ? (
@@ -398,16 +411,17 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b text-left bg-muted/50">
-                    <th className="p-3">Data</th>
-                    <th className="p-3">Cliente</th>
-                    <th className="p-3">Veículo</th>
-                    <th className="p-3">Valor Bruto</th>
-                    <th className="p-3">%</th>
-                    <th className="p-3">Comissão Total</th>
-                    <th className="p-3">Recebido</th>
-                    <th className="p-3">Pendente</th>
-                    <th className="p-3">Status</th>
+                  <tr className="border-b bg-muted/50">
+                    <th className="p-3 text-left text-foreground">Data Serviço</th>
+                    <th className="p-3 text-left text-foreground">Cliente</th>
+                    <th className="p-3 text-left text-foreground">Veículo</th>
+                    <th className="p-3 text-left text-foreground">Valor Bruto</th>
+                    <th className="p-3 text-left text-foreground">%</th>
+                    <th className="p-3 text-left text-foreground">Comissão Total</th>
+                    <th className="p-3 text-left text-foreground">Recebido</th>
+                    <th className="p-3 text-left text-foreground">Pendente</th>
+                    <th className="p-3 text-left text-foreground">Data Recebimento</th>
+                    <th className="p-3 text-left text-foreground">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -422,16 +436,16 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                     return (
                       <tr key={servico.id} className="border-b hover:bg-muted/30 transition-colors">
                         <td className="p-3">
-                          <div className="font-medium">{formatDate(servico.data_servico)}</div>
+                          <div className="font-medium text-foreground">{formatDate(servico.data_servico)}</div>
                         </td>
-                        <td className="p-3">{getClienteName(servico.cliente_id)}</td>
+                        <td className="p-3 text-foreground">{getClienteName(servico.cliente_id)}</td>
                         <td className="p-3">
-                          <div>{servico.veiculo}</div>
+                          <div className="text-foreground">{servico.veiculo}</div>
                           <div className="text-xs text-muted-foreground">{servico.placa}</div>
                         </td>
-                        <td className="p-3">{formatCurrency(servico.valor_bruto)}</td>
-                        <td className="p-3">{servico.porcentagem_comissao}%</td>
-                        <td className="p-3 font-semibold">{formatCurrency(comissaoTotal)}</td>
+                        <td className="p-3 text-foreground">{formatCurrency(servico.valor_bruto)}</td>
+                        <td className="p-3 text-foreground">{servico.porcentagem_comissao}%</td>
+                        <td className="p-3 font-semibold text-foreground">{formatCurrency(comissaoTotal)}</td>
                         <td className="p-3">
                           <span className={comissaoRecebida > 0 ? "text-success font-semibold" : "text-muted-foreground"}>
                             {formatCurrency(comissaoRecebida)}
@@ -441,6 +455,18 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                           <span className={comissaoPendente > 0 ? "text-warning font-semibold" : "text-muted-foreground"}>
                             {formatCurrency(comissaoPendente)}
                           </span>
+                        </td>
+                        <td className="p-3">
+                          {servico.data_recebimento_comissao ? (
+                            <div className="text-sm">
+                              <div className="text-success font-medium">{formatDate(servico.data_recebimento_comissao)}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {new Date(servico.data_recebimento_comissao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">Não recebido</span>
+                          )}
                         </td>
                         <td className="p-3">
                           <Badge 
@@ -460,10 +486,11 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                 </tbody>
                 <tfoot>
                   <tr className="border-t-2 bg-muted/50 font-bold">
-                    <td colSpan={5} className="p-3 text-right">TOTAIS:</td>
-                    <td className="p-3">{formatCurrency(totalComissoesFiltradas)}</td>
+                    <td colSpan={5} className="p-3 text-right text-foreground">TOTAIS:</td>
+                    <td className="p-3 text-foreground">{formatCurrency(totalComissoesFiltradas)}</td>
                     <td className="p-3 text-success">{formatCurrency(comissoesRecebidasFiltradas)}</td>
                     <td className="p-3 text-warning">{formatCurrency(comissoesPendentesFiltradas)}</td>
+                    <td className="p-3"></td>
                     <td className="p-3"></td>
                   </tr>
                 </tfoot>
@@ -478,13 +505,13 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <FileText className="h-5 w-5 text-primary" />
-            <span>Outros Relatórios</span>
+            <span className="text-foreground">Outros Relatórios</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-4 border rounded-lg">
-              <h3 className="font-semibold mb-2">Relatório de Comissões</h3>
+              <h3 className="font-semibold mb-2 text-foreground">Relatório de Comissões</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Relatório resumido com totais, recebidos e pendentes
               </p>
@@ -500,7 +527,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
             </div>
 
             <div className="p-4 border rounded-lg">
-              <h3 className="font-semibold mb-2">Relatório de Despesas</h3>
+              <h3 className="font-semibold mb-2 text-foreground">Relatório de Despesas</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Relatório com despesas pagas e pendentes
               </p>
@@ -516,7 +543,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
             </div>
 
             <div className="p-4 border rounded-lg">
-              <h3 className="font-semibold mb-2">Histórico de Recebimentos</h3>
+              <h3 className="font-semibold mb-2 text-foreground">Histórico de Recebimentos</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Visualize o histórico de comissões recebidas por data.
               </p>
@@ -537,13 +564,13 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
       {/* Prévia dos Dados Gerais */}
       <Card className="shadow-medium">
         <CardHeader>
-          <CardTitle>Resumo Geral (Sem Filtros)</CardTitle>
+          <CardTitle className="text-foreground">Resumo Geral (Sem Filtros)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="space-y-4">
               <h4 className="font-semibold text-success">Comissões Recebidas</h4>
-              <div className="text-center p-6 bg-success/10 rounded-lg">
+              <div className="text-center p-6 bg-success/10 rounded-lg border">
                 <p className="text-3xl font-bold text-success">{formatCurrency(comissoesRecebidas)}</p>
                 <p className="text-sm text-muted-foreground">
                   {Math.round((comissoesRecebidas / totalComissoes * 100) || 0)}% do total
@@ -553,7 +580,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
 
             <div className="space-y-4">
               <h4 className="font-semibold text-warning">Comissões Pendentes</h4>
-              <div className="text-center p-6 bg-warning/10 rounded-lg">
+              <div className="text-center p-6 bg-warning/10 rounded-lg border">
                 <p className="text-3xl font-bold text-warning">{formatCurrency(comissoesPendentes)}</p>
                 <p className="text-sm text-muted-foreground">
                   {Math.round((comissoesPendentes / totalComissoes * 100) || 0)}% do total
@@ -563,7 +590,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
 
             <div className="space-y-4">
               <h4 className="font-semibold text-destructive">Despesas Pagas</h4>
-              <div className="text-center p-6 bg-destructive/10 rounded-lg">
+              <div className="text-center p-6 bg-destructive/10 rounded-lg border">
                 <p className="text-3xl font-bold text-destructive">{formatCurrency(despesasPagas)}</p>
                 <p className="text-sm text-muted-foreground">
                   {data.despesas.filter(d => d.pago).length} despesas pagas
@@ -573,7 +600,7 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
 
             <div className="space-y-4">
               <h4 className="font-semibold text-primary">Performance</h4>
-              <div className="text-center p-6 bg-primary/10 rounded-lg">
+              <div className="text-center p-6 bg-primary/10 rounded-lg border">
                 <p className="text-3xl font-bold text-primary">
                   {Math.round((comissoesRecebidas / totalComissoes * 100) || 0)}%
                 </p>
