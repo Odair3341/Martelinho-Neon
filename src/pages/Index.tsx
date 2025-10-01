@@ -79,12 +79,12 @@ const Index = () => {
 
   const loadUserData = async (userId: string) => {
     try {
-      // Load all user data from Supabase
+      // Load all user data from Supabase using Portuguese table names
       const [clientesResult, servicosResult, despesasResult, comissoesResult] = await Promise.all([
-        supabase.from('clientes').select('*').eq('user_id', userId).order('nome'),
-        supabase.from('servicos').select('*').eq('user_id', userId).order('data_servico', { ascending: false }),
-        supabase.from('despesas').select('*').eq('user_id', userId).order('data_vencimento'),
-        supabase.from('comissoes').select('*').eq('user_id', userId).order('data_recebimento', { ascending: false })
+        supabase.from('clientes').select('*').order('nome'),
+        supabase.from('servicos').select('*').order('data_servico', { ascending: false }),
+        supabase.from('despesas').select('*').order('data_vencimento', { ascending: false }),
+        supabase.from('comissoes').select('*').order('data_recebimento', { ascending: false })
       ]);
 
       if (clientesResult.error) throw clientesResult.error;
@@ -92,21 +92,62 @@ const Index = () => {
       if (despesasResult.error) throw despesasResult.error;
       if (comissoesResult.error) throw comissoesResult.error;
 
+      // Map database structure to expected interface
+      const mappedClientes = (clientesResult.data || []).map(cliente => ({
+        id: cliente.id,
+        nome: cliente.nome,
+        telefone: '', // Not in current schema
+        email: '', // Not in current schema
+        endereco: '', // Not in current schema
+        cpf: '', // Not in current schema
+        data_cadastro: cliente.created_at || ''
+      }));
+
+      const mappedServicos = (servicosResult.data || []).map(servico => ({
+        id: servico.id,
+        data_servico: servico.data_servico,
+        veiculo: servico.veiculo,
+        placa: servico.placa,
+        valor_bruto: Number(servico.valor_bruto),
+        porcentagem_comissao: Number(servico.porcentagem_comissao),
+        observacao: servico.observacao || '',
+        valor_pago: Number(servico.valor_pago),
+        quitado: servico.quitado,
+        comissao_recebida: Number(servico.comissao_recebida),
+        cliente_id: servico.cliente_id
+      }));
+
+      const mappedDespesas = (despesasResult.data || []).map(despesa => ({
+        id: despesa.id,
+        descricao: despesa.descricao,
+        valor: Number(despesa.valor),
+        data_vencimento: despesa.data_vencimento,
+        pago: despesa.pago,
+        categoria: 'Geral' // Default category
+      }));
+
+      const mappedComissoes = (comissoesResult.data || []).map(comissao => ({
+        id: comissao.id,
+        servico_id: comissao.servico_id,
+        valor: Number(comissao.valor),
+        data_recebimento: comissao.data_recebimento,
+        status: comissao.status as 'pendente' | 'recebido' | 'atrasado',
+        created_at: comissao.created_at,
+        updated_at: comissao.updated_at
+      }));
+
       const loadedData: BusinessData = {
-        clientes: clientesResult.data || [],
-        servicos: servicosResult.data || [],
-        despesas: despesasResult.data || [],
-        comissoes: (comissoesResult.data || []).map(c => ({
-          ...c,
-          status: c.status as 'pendente' | 'recebido' | 'atrasado'
-        })),
+        clientes: mappedClientes,
+        servicos: mappedServicos,
+        despesas: mappedDespesas,
+        comissoes: mappedComissoes,
         metadata: {
           exportDate: new Date().toISOString(),
           version: "1.0",
-          totalClientes: clientesResult.data?.length || 0,
-          totalServicos: servicosResult.data?.length || 0,
-          totalDespesas: despesasResult.data?.length || 0,
-          totalComissoes: comissoesResult.data?.length || 0
+          totalClientes: mappedClientes.length,
+          totalServicos: mappedServicos.length,
+          totalDespesas: mappedDespesas.length,
+          totalComissoes: mappedComissoes.length
         }
       };
 
