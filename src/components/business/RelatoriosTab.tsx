@@ -25,6 +25,8 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   };
 
+  // Arredondamento monetário (2 casas)
+  const roundCurrency = (value: number) => Math.round(value * 100) / 100;
   // Função para formatar data
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -84,8 +86,8 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
     // Filtro por status
     let passesStatusFilter = true;
     if (statusFilter !== "todos") {
-      const comissaoTotal = Math.round(servico.valor_bruto * servico.porcentagem_comissao) / 100;
-      const isRecebido = servico.comissao_recebida >= comissaoTotal;
+      const comissaoTotal = roundCurrency((servico.valor_bruto * servico.porcentagem_comissao) / 100);
+      const isRecebido = roundCurrency(servico.comissao_recebida) >= comissaoTotal;
       
       if (statusFilter === "recebidos") {
         passesStatusFilter = isRecebido;
@@ -123,16 +125,22 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
 
   // Calcular totais
   const totalServicos = filteredServicos.length;
-  const totalValorBruto = filteredServicos.reduce((sum, s) => sum + s.valor_bruto, 0);
-  const totalComissoes = filteredServicos.reduce((sum, s) => {
-    const comissao = Math.round(s.valor_bruto * s.porcentagem_comissao) / 100;
-    return sum + comissao;
-  }, 0);
-  const totalRecebido = filteredServicos.reduce((sum, s) => sum + s.comissao_recebida, 0);
+  const totalValorBruto = roundCurrency(filteredServicos.reduce((sum, s) => sum + roundCurrency(s.valor_bruto), 0));
+  const totalComissoes = roundCurrency(filteredServicos.reduce((sum, s) => sum + roundCurrency((s.valor_bruto * s.porcentagem_comissao) / 100), 0));
+  const totalRecebido = roundCurrency(filteredServicos.reduce((sum, s) => sum + roundCurrency(s.comissao_recebida), 0));
+  const totalClientesFiltrados = new Set(filteredServicos.map(s => s.cliente_id)).size;
+  const ticketMedio = totalServicos > 0 ? roundCurrency(totalValorBruto / totalServicos) : 0;
+
+  // Totais Gerais (sem filtros)
+  const totalServicosGeral = data.servicos.length;
+  const totalValorBrutoGeral = roundCurrency(data.servicos.reduce((sum, s) => sum + roundCurrency(s.valor_bruto), 0));
+  const totalComissoesGeral = roundCurrency(data.servicos.reduce((sum, s) => sum + roundCurrency((s.valor_bruto * s.porcentagem_comissao) / 100), 0));
+  const totalRecebidoGeral = roundCurrency(data.servicos.reduce((sum, s) => sum + roundCurrency(s.comissao_recebida), 0));
+  const totalPendenteGeral = Math.max(0, roundCurrency(totalComissoesGeral - totalRecebidoGeral));
 
   // Calcular porcentagem de recebimento
   const percentualRecebido = totalComissoes > 0 ? (totalRecebido / totalComissoes) * 100 : 0;
-  const totalPendente = totalComissoes - totalRecebido;
+  const totalPendente = Math.max(0, roundCurrency(totalComissoes - totalRecebido));
 
   const clearFilters = () => {
     setSelectedMonth("todos");
@@ -157,47 +165,47 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm">Total Comissões</p>
-                <p className="text-3xl font-bold">R$ 79.420,98</p>
+                <p className="text-blue-100 text-sm">Resumo Geral de Comissões</p>
+                <p className="text-3xl font-bold">{formatCurrency(totalComissoesGeral)}</p>
               </div>
               <DollarSign className="h-8 w-8 text-blue-200" />
             </div>
           </CardContent>
         </Card>
 
-        {/* Card 2 - Total Serviços */}
+        {/* Card 2 - Total Acumulado */}
         <Card className="bg-orange-500 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-orange-100 text-sm">Total Serviços</p>
-                <p className="text-3xl font-bold">117</p>
+                <p className="text-orange-100 text-sm">Total Acumulado</p>
+                <p className="text-3xl font-bold">{formatCurrency(totalValorBrutoGeral)}</p>
               </div>
               <Calendar className="h-8 w-8 text-orange-200" />
             </div>
           </CardContent>
         </Card>
 
-        {/* Card 3 - Total Clientes */}
+        {/* Card 3 - Total Recebido */}
         <Card className="bg-green-600 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-sm">Total Clientes</p>
-                <p className="text-3xl font-bold">1</p>
+                <p className="text-green-100 text-sm">Total Recebido</p>
+                <p className="text-3xl font-bold">{formatCurrency(totalRecebidoGeral)}</p>
               </div>
               <CheckCircle2 className="h-8 w-8 text-green-200" />
             </div>
           </CardContent>
         </Card>
 
-        {/* Card 4 - Ticket Médio */}
+        {/* Card 4 - Total Pendente */}
         <Card className="bg-purple-600 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm">Ticket Médio</p>
-                <p className="text-3xl font-bold">R$ 2.051,02</p>
+                <p className="text-purple-100 text-sm">Total Pendente</p>
+                <p className="text-3xl font-bold">{formatCurrency(totalPendenteGeral)}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-purple-200" />
             </div>
@@ -313,47 +321,6 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
         </CardContent>
       </Card>
 
-      {/* Cards de Resumo - Filtrados */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Card 1 - Total Comissões (Filtrado) */}
-        <Card className="bg-blue-50 dark:bg-blue-950 border-l-4 border-l-blue-500">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Total Comissões (Filtrado)</p>
-                <p className="text-3xl font-bold text-blue-600">R$ {totalComissoes.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-              </div>
-              <DollarSign className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 2 - Recebidos (Filtrado) */}
-        <Card className="bg-green-50 dark:bg-green-950 border-l-4 border-l-green-500">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Recebidos (Filtrado)</p>
-                <p className="text-3xl font-bold text-green-600">R$ {totalRecebido.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-              </div>
-              <CheckCircle2 className="h-8 w-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 3 - Pendentes (Filtrado) */}
-        <Card className="bg-orange-50 dark:bg-orange-950 border-l-4 border-l-orange-500">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Pendentes (Filtrado)</p>
-                <p className="text-3xl font-bold text-orange-600">R$ {totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-orange-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* TABELA DETALHADA DE COMISSÕES */}
       <Card className="bg-gray-900 text-white">
@@ -386,8 +353,9 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                   </TableRow>
                 ) : (
                   filteredServicos.map((servico) => {
-                    const comissaoTotal = Math.round(servico.valor_bruto * servico.porcentagem_comissao) / 100;
-                    const pendente = comissaoTotal - servico.comissao_recebida;
+                    const comissaoTotal = roundCurrency((servico.valor_bruto * servico.porcentagem_comissao) / 100);
+                    const comissaoRecebida = roundCurrency(servico.comissao_recebida);
+                    const pendente = Math.max(0, roundCurrency(comissaoTotal - comissaoRecebida));
                     const cliente = data.clientes.find(c => c.id === servico.cliente_id);
                     
                     return (

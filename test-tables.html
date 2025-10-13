@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Tables</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Testando tabelas do banco de dados...</h1>
+    <div id="status">Carregando...</div>
+    
+    <script>
+        const { createClient } = supabase;
+        
+        const SUPABASE_URL = "https://fdavzmkbbyhqljkcjwmq.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkYXZ6bWtiYnlocWxqa2Nqd21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxOTU0NTQsImV4cCI6MjA3MDc3MTQ1NH0.28W1TceOuTZlnp0yVF4WMDMAOPcmA5BA45XavXUmZGo";
+        
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        async function testTables() {
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                statusDiv.innerHTML = 'Testando tabela clientes...';
+                
+                // Test clientes table
+                const { data: clientesData, error: clientesError } = await supabaseClient
+                    .from('clientes')
+                    .select('*')
+                    .limit(1);
+                
+                if (clientesError) {
+                    statusDiv.innerHTML += '<br>❌ Erro na tabela clientes: ' + clientesError.message;
+                } else {
+                    statusDiv.innerHTML += '<br>✅ Tabela clientes OK - ' + (clientesData?.length || 0) + ' registros encontrados';
+                }
+                
+                // Test servicos table
+                statusDiv.innerHTML += '<br>Testando tabela servicos...';
+                const { data: servicosData, error: servicosError } = await supabaseClient
+                    .from('servicos')
+                    .select('*')
+                    .limit(1);
+                
+                if (servicosError) {
+                    statusDiv.innerHTML += '<br>❌ Erro na tabela servicos: ' + servicosError.message;
+                } else {
+                    statusDiv.innerHTML += '<br>✅ Tabela servicos OK - ' + (servicosData?.length || 0) + ' registros encontrados';
+                }
+                
+                // Test despesas table
+                statusDiv.innerHTML += '<br>Testando tabela despesas...';
+                const { data: despesasData, error: despesasError } = await supabaseClient
+                    .from('despesas')
+                    .select('*')
+                    .limit(1);
+                
+                if (despesasError) {
+                    statusDiv.innerHTML += '<br>❌ Erro na tabela despesas: ' + despesasError.message;
+                } else {
+                    statusDiv.innerHTML += '<br>✅ Tabela despesas OK - ' + (despesasData?.length || 0) + ' registros encontrados';
+                }
+                
+                // Test comissoes table
+                statusDiv.innerHTML += '<br>Testando tabela comissoes...';
+                const { data: comissoesData, error: comissoesError } = await supabaseClient
+                    .from('comissoes')
+                    .select('*')
+                    .limit(1);
+                
+                if (comissoesError) {
+                    statusDiv.innerHTML += '<br>❌ Erro na tabela comissoes: ' + comissoesError.message;
+                } else {
+                    statusDiv.innerHTML += '<br>✅ Tabela comissoes OK - ' + (comissoesData?.length || 0) + ' registros encontrados';
+                }
+                
+                statusDiv.innerHTML += '<br><br>Teste concluído!';
+                
+            } catch (error) {
+                statusDiv.innerHTML = 'Erro geral: ' + error.message;
+            }
+        }
+        
+        testTables();
+    </script>
+</body>
+</html>

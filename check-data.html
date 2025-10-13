@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Dados</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        pre { background-color: #f8f9fa; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Verificação de Dados</h1>
+    <div id="results"></div>
+
+    <script>
+        const supabaseUrl = 'https://fdavzmkbbyhqljkcjwmq.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkYXZ6bWtiYnlocWxqa2Nqd21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxOTU0NTQsImV4cCI6MjA3MDc3MTQ1NH0.28W1TceOuTZlnp0yVF4WMDMAOPcmA5BA45XavXUmZGo';
+        
+        // Substitua pelas suas credenciais reais
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function checkData() {
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                // Verificar clientes
+                const { data: clientes, error: clientesError } = await supabase
+                    .from('clientes')
+                    .select('*');
+                
+                if (clientesError) {
+                    resultsDiv.innerHTML += `<div class="result error"><h3>Erro ao buscar clientes:</h3><pre>${JSON.stringify(clientesError, null, 2)}</pre></div>`;
+                } else {
+                    resultsDiv.innerHTML += `<div class="result success"><h3>Clientes (${clientes.length}):</h3><pre>${JSON.stringify(clientes, null, 2)}</pre></div>`;
+                }
+
+                // Verificar serviços
+                const { data: servicos, error: servicosError } = await supabase
+                    .from('servicos')
+                    .select('*');
+                
+                if (servicosError) {
+                    resultsDiv.innerHTML += `<div class="result error"><h3>Erro ao buscar serviços:</h3><pre>${JSON.stringify(servicosError, null, 2)}</pre></div>`;
+                } else {
+                    resultsDiv.innerHTML += `<div class="result success"><h3>Serviços (${servicos.length}):</h3><pre>${JSON.stringify(servicos, null, 2)}</pre></div>`;
+                }
+
+                // Verificar despesas
+                const { data: despesas, error: despesasError } = await supabase
+                    .from('despesas')
+                    .select('*');
+                
+                if (despesasError) {
+                    resultsDiv.innerHTML += `<div class="result error"><h3>Erro ao buscar despesas:</h3><pre>${JSON.stringify(despesasError, null, 2)}</pre></div>`;
+                } else {
+                    resultsDiv.innerHTML += `<div class="result success"><h3>Despesas (${despesas.length}):</h3><pre>${JSON.stringify(despesas, null, 2)}</pre></div>`;
+                }
+
+                // Verificar comissões
+                const { data: comissoes, error: comissoesError } = await supabase
+                    .from('comissoes')
+                    .select('*');
+                
+                if (comissoesError) {
+                    resultsDiv.innerHTML += `<div class="result error"><h3>Erro ao buscar comissões:</h3><pre>${JSON.stringify(comissoesError, null, 2)}</pre></div>`;
+                } else {
+                    resultsDiv.innerHTML += `<div class="result success"><h3>Comissões (${comissoes.length}):</h3><pre>${JSON.stringify(comissoes, null, 2)}</pre></div>`;
+                }
+
+            } catch (error) {
+                resultsDiv.innerHTML += `<div class="result error"><h3>Erro geral:</h3><pre>${JSON.stringify(error, null, 2)}</pre></div>`;
+            }
+        }
+
+        // Executar verificação quando a página carregar
+        window.onload = checkData;
+    </script>
+</body>
+</html>
