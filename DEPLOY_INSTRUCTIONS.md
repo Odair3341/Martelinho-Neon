@@ -19,7 +19,7 @@ Configure um Build Hook para deploy via script:
    - Vá em: Site Settings → Build & deploy → Build hooks
    - Clique em **"Add build hook"**
    - Nome: "Manual Deploy"
-   - Branch: "master"
+   - Branch: "main"
    - Copie a URL gerada
 
 2. **No projeto:**
@@ -35,6 +35,7 @@ Configure um Build Hook para deploy via script:
    - Clique em **"Manage repository"**
    - Selecione **"Link to a different repository"**
    - Relinque o mesmo repositório: `Odair3341/Luciano-martelinho`
+   - Confirme que a "Production branch" é `main`
 
 #### Opção B: Verificar Webhooks no GitHub
 1. **No GitHub:**
@@ -49,6 +50,16 @@ Configure um Build Hook para deploy via script:
    - Verifique se o Netlify tem permissões adequadas
    - Se necessário, revogue e reautorize
 
+### 4. **Variáveis de Ambiente (Netlify)**
+Para evitar expor segredos no repositório e garantir consistência em todos os contextos de deploy, configure as variáveis no Netlify:
+
+- Site Settings → Build & deploy → Environment
+- Adicione:
+  - `VITE_SUPABASE_URL` = `https://fdavzmkbbyhqljkcjwmq.supabase.co`
+  - `VITE_SUPABASE_ANON_KEY` = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkYXZ6bWtiYnlocWxqa2Nqd21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxOTU0NTQsImV4cCI6MjA3MDc3MTQ1NH0.28W1TceOuTZlnp0yVF4WMDMAOPcmA5BA45XavXUmZGo`
+- Opcional: remova essas variáveis do `netlify.toml` depois que estiverem definidas no Netlify.
+- Recomendo também definir `NODE_VERSION=18` no Netlify para alinhar com o projeto.
+
 ## 🔧 Teste do Deploy Automático
 
 Após aplicar qualquer solução acima, teste fazendo uma pequena alteração:
@@ -60,7 +71,7 @@ echo "Teste $(date)" >> README.md
 # Commit e push
 git add README.md
 git commit -m "Test: Deploy automático"
-git push origin master
+git push origin main
 ```
 
 Aguarde 2-3 minutos e verifique se apareceu um novo deploy no painel do Netlify.

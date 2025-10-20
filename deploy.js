@@ -16,7 +16,7 @@ if (BUILD_HOOK_URL === 'SEU_BUILD_HOOK_AQUI') {
     console.log('2. Vá em Site Settings > Build & deploy > Build hooks');
     console.log('3. Clique em "Add build hook"');
     console.log('4. Dê um nome (ex: "Manual Deploy")');
-    console.log('5. Selecione a branch "master"');
+    console.log('5. Selecione a branch "main"');
     console.log('6. Copie a URL gerada e substitua no arquivo deploy.js');
     process.exit(1);
 }

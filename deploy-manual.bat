@@ -20,7 +20,7 @@ echo 1. Acesse: Site Settings ^> Build ^& deploy
 echo 2. Role ate "Build hooks"
 echo 3. Clique "Add build hook"
 echo 4. Nome: "Manual Deploy"
-echo 5. Branch: "master"
+echo 5. Branch: "main"
 echo 6. Copie a URL gerada
 echo.
 pause
