@@ -77,3 +77,20 @@ npm run build
 ## 📞 Suporte
 
 Para suporte técnico, entre em contato através do sistema.
+
+## 🧩 Extensões Netlify (Neon) com Supabase
+
+Se você usa Supabase, não precisa da extensão Neon do Netlify (Neon é outra plataforma de Postgres). Manter essa extensão ativa pode causar falhas de build com `ETIMEDOUT` durante "Installing extensions".
+
+### Como desativar
+- Netlify → `Site settings` → `Extensions` → selecione `Neon` → `Disable/Uninstall`
+- Netlify → `Deploys` → `Clear build cache and deploy site`
+- Netlify → `Site settings` → `Build & deploy` → `Production branch` = `main`
+
+### Se quiser manter extensões
+- Defina variáveis de ambiente para tolerar timeouts:
+  - `NPM_CONFIG_FETCH_TIMEOUT=600000`
+  - `NPM_CONFIG_RETRY=5`
+
+### Referência
+- Erro "Build script returned non-zero exit code: 2": https://ntl.fyi/exit-code-2
