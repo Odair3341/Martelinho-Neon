@@ -46,6 +46,7 @@ export const Dashboard = ({ data }: DashboardProps) => {
     }).format(value);
   };
 
+  const roundCurrency = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
   const formatDate = (dateString: string) => {
     return new Date(dateString + 'T00:00:00').toLocaleDateString('pt-BR');
   };
@@ -205,6 +206,7 @@ export const Dashboard = ({ data }: DashboardProps) => {
           <div className="space-y-4">
             {servicosRecentes.map((servico) => {
               const cliente = data.clientes.find(c => c.id === servico.cliente_id);
+              const comissaoTotal = roundCurrency(servico.valor_bruto * servico.porcentagem_comissao / 100);
               return (
                 <div key={servico.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center space-x-4">
@@ -221,7 +223,7 @@ export const Dashboard = ({ data }: DashboardProps) => {
                   <div className="text-right">
                     <p className="font-medium">{formatCurrency(servico.valor_bruto)}</p>
                      <p className="text-sm" style={{ color: 'hsl(var(--success))' }}>
-                       Comissão: {formatCurrency(servico.comissao_recebida)}
+                       Comissão: {formatCurrency(comissaoTotal)}
                      </p>
                   </div>
                 </div>
