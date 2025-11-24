@@ -19,7 +19,7 @@ export interface Servico {
   valor_pago: number;
   quitado: boolean;
   comissao_recebida: number;
-  cliente_id: number;
+  cliente_id: number | string;
   data_recebimento_comissao?: string; // Data quando a comissão foi recebida
 }
 

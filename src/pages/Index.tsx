@@ -236,7 +236,29 @@ const Index = () => {
       }
       // Similar delete logic for clientes, despesas can be added here
 
-      // Handle Inserts and Updates
+      // Primeiro insere clientes novos para garantir integridade referencial
+      const clientIdMap = new Map<string, number>();
+      for (const cliente of newData.clientes) {
+        if (typeof cliente.id === 'string' && cliente.id.startsWith('temp_')) {
+          const { data: insertedClient, error } = await supabase
+            .from('clientes')
+            .insert({ nome: cliente.nome, user_id: user.id })
+            .select()
+            .single();
+          if (error) throw error;
+          clientIdMap.set(cliente.id, insertedClient.id);
+          setBusinessData(currentData => ({
+            ...currentData,
+            clientes: currentData.clientes.map(c =>
+              c.id === cliente.id ? { ...c, id: insertedClient.id } : c
+            ),
+          }));
+        } else {
+          // update logic
+        }
+      }
+
+      // Handle Inserts and Updates de serviços (após clientes)
       for (const servico of newData.servicos) {
         if (typeof servico.id === 'string' && servico.id.startsWith('temp_')) {
           // Insert new service
@@ -244,7 +266,12 @@ const Index = () => {
             .from('servicos')
             .insert({
               data_servico: servico.data_servico,
-              cliente_id: servico.cliente_id,
+              cliente_id:
+                typeof servico.cliente_id === 'string'
+                  ? servico.cliente_id.startsWith('temp_')
+                    ? clientIdMap.get(servico.cliente_id) ?? null
+                    : parseInt(servico.cliente_id, 10)
+                  : servico.cliente_id,
               veiculo: servico.veiculo,
               placa: servico.placa,
               valor_bruto: servico.valor_bruto,
@@ -274,7 +301,12 @@ const Index = () => {
             .from('servicos')
             .update({
               data_servico: servico.data_servico,
-              cliente_id: servico.cliente_id,
+              cliente_id:
+                typeof servico.cliente_id === 'string'
+                  ? servico.cliente_id.startsWith('temp_')
+                    ? clientIdMap.get(servico.cliente_id) ?? null
+                    : parseInt(servico.cliente_id, 10)
+                  : servico.cliente_id,
               veiculo: servico.veiculo,
               placa: servico.placa,
               valor_bruto: servico.valor_bruto,
@@ -288,52 +320,32 @@ const Index = () => {
             .eq('user_id', user.id);
         }
       }
-      // Similar loops for clientes and despesas
-      for (const cliente of newData.clientes) {
-         if (typeof cliente.id === 'string' && cliente.id.startsWith('temp_')) {
-            const { data: insertedClient, error } = await supabase
-              .from('clientes')
-              .insert({ nome: cliente.nome, user_id: user.id })
-              .select()
-              .single();
-            if (error) throw error;
-            if (insertedClient) {
-               setBusinessData(currentData => ({
-                 ...currentData,
-                 clientes: currentData.clientes.map(c =>
-                   c.id === cliente.id ? { ...c, id: insertedClient.id } : c
-                 ),
-               }));
-            }
-         } else {
-            // update logic
-         }
-      }
-       for (const despesa of newData.despesas) {
-         if (typeof despesa.id === 'string' && despesa.id.startsWith('temp_')) {
-            const { data: insertedDespesa, error } = await supabase
-              .from('despesas')
-              .insert({
-                 descricao: despesa.descricao,
-                 valor: despesa.valor,
-                 data_vencimento: despesa.data_vencimento,
-                 pago: despesa.pago,
-                 user_id: user.id
-              })
-              .select()
-              .single();
-            if (error) throw error;
-            if (insertedDespesa) {
-               setBusinessData(currentData => ({
-                 ...currentData,
-                 despesas: currentData.despesas.map(d =>
-                   d.id === despesa.id ? { ...d, id: insertedDespesa.id } : d
-                 ),
-               }));
-            }
-         } else {
-            // update logic
-         }
+      // Similar loops for despesas
+      for (const despesa of newData.despesas) {
+        if (typeof despesa.id === 'string' && despesa.id.startsWith('temp_')) {
+           const { data: insertedDespesa, error } = await supabase
+             .from('despesas')
+             .insert({
+                descricao: despesa.descricao,
+                valor: despesa.valor,
+                data_vencimento: despesa.data_vencimento,
+                pago: despesa.pago,
+                user_id: user.id
+             })
+             .select()
+             .single();
+           if (error) throw error;
+           if (insertedDespesa) {
+              setBusinessData(currentData => ({
+                ...currentData,
+                despesas: currentData.despesas.map(d =>
+                  d.id === despesa.id ? { ...d, id: insertedDespesa.id } : d
+                ),
+              }));
+           }
+        } else {
+           // update logic
+        }
       }
 
 

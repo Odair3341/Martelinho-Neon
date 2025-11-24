@@ -71,10 +71,14 @@ export const ServicosTab = ({ data, onUpdateData }: ServicosTabProps) => {
     }
     const comissaoTotal = (valorBruto * porcentagemComissao) / 100;
 
+    const clienteIdValue = /^\d+$/.test(formData.cliente_id)
+      ? Number(formData.cliente_id)
+      : formData.cliente_id;
+
     const newService: Servico = {
       id: 'temp_' + Date.now(),
       data_servico: fixTimezoneDate(formData.data_servico),
-      cliente_id: parseInt(formData.cliente_id),
+      cliente_id: clienteIdValue as any,
       veiculo: formData.veiculo,
       placa: formData.placa.toUpperCase(),
       valor_bruto: valorBruto,
@@ -82,7 +86,7 @@ export const ServicosTab = ({ data, onUpdateData }: ServicosTabProps) => {
       observacao: formData.observacao,
       valor_pago: 0,
       quitado: false,
-      comissao_recebida: 0  // Inicia com 0, será atualizada quando receber
+      comissao_recebida: 0
     };
 
     const updatedData = {
