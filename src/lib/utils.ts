@@ -6,41 +6,26 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Corrige o problema de timezone ao trabalhar com datas
- * Garante que a data seja interpretada no timezone local
+ * Corrige o problema de timezone ao trabalhar com datas.
+ * Como o input `date` do HTML5 já retorna a data no formato YYYY-MM-DD,
+ * a função apenas garante que a string seja repassada corretamente.
  * @param dateString - String da data no formato YYYY-MM-DD
- * @returns String da data corrigida no formato YYYY-MM-DD
+ * @returns A mesma string de data recebida.
  */
 export function fixTimezoneDate(dateString: string): string {
-  if (!dateString) return dateString;
-  
-  // Se a data já está no formato correto YYYY-MM-DD, retorna como está
-  // para evitar problemas de conversão de timezone
-  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    return dateString;
-  }
-  
-  // Cria uma data no timezone local para evitar problemas de UTC
-  const [year, month, day] = dateString.split('-').map(Number);
-  const localDate = new Date(year, month - 1, day);
-  
-  // Retorna a data no formato YYYY-MM-DD
-  return localDate.toISOString().split('T')[0];
+  // Apenas retorna a string. A lógica anterior de conversão de fuso horário
+  // estava causando bugs, pois `toISOString` converte para UTC, mudando o dia.
+  // O formato do input `date` já é o `YYYY-MM-DD` esperado pelo Supabase.
+  return dateString;
 }
 
 /**
- * Converte uma data do banco para o formato do input date
- * @param dateString - String da data (pode incluir timestamp)
- * @returns String da data no formato YYYY-MM-DD
+ * Formata uma string de data (com ou sem timestamp) para o formato YYYY-MM-DD.
+ * @param dateString - String da data (pode ser 'YYYY-MM-DD' ou 'YYYY-MM-DDTHH:mm:ssZ')
+ * @returns String da data no formato YYYY-MM-DD.
  */
-export function formatDateForInput(dateString: string): string {
+export function formatDateForInput(dateString: string | null | undefined): string {
   if (!dateString) return '';
-  
-  // Se a data já está no formato correto, retorna como está
-  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    return dateString;
-  }
-  
-  // Se tem timestamp, pega apenas a parte da data
+  // Garante que retorne apenas a parte da data, removendo o timestamp se houver.
   return dateString.split('T')[0];
 }

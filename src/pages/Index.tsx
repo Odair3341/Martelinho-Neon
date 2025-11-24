@@ -349,14 +349,20 @@ const Index = () => {
       }
 
 
-    } catch (error) {
-      console.error('Erro ao salvar dados:', error);
+    } catch (error: any) {
+      console.error(
+        'Erro detalhado ao salvar dados:', {
+          errorMessage: error?.message,
+          errorDetails: error,
+          dataSent: newData,
+        }
+      );
       toast({
         title: "Erro ao salvar",
-        description: "Houve um problema ao salvar os dados. Verifique o console para mais detalhes.",
+        description: `Houve um problema ao salvar os dados: ${error?.message || 'Erro desconhecido'}. Verifique o console para mais detalhes.`,
         variant: "destructive",
       });
-      // Optional: Revert optimistic update on error
+      // Reverte a atualização otimista em caso de erro
       setBusinessData(oldData);
     }
   };
