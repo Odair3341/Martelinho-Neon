@@ -11,15 +11,12 @@ import { ComissoesTab } from "@/components/business/ComissoesTab";
 import { RelatoriosTab } from "@/components/business/RelatoriosTab";
 import { BackupTab } from "@/components/business/BackupTab";
 import { ImportDialog } from "@/components/business/ImportDialog";
-import { supabase } from "@/integrations/supabase/client";
-import { User, Session } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showImportDialog, setShowImportDialog] = useState(false);
@@ -40,42 +37,16 @@ const Index = () => {
     }
   });
 
-  // Authentication and data loading
   useEffect(() => {
-    // Get current user and load data
-    const initializeUser = async () => {
+    const initialize = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        
-        if (error || !user) {
-          console.error('Failed to get user:', error);
-          navigate('/auth');
-          return;
-        }
-
-        setUser(user);
-        await loadUserData(user.id);
-      } catch (error) {
-        console.error('Error initializing user:', error);
-        navigate('/auth');
+        await loadUserData('');
       } finally {
         setLoading(false);
       }
     };
-
-    initializeUser();
-
-    // Set up auth state listener for logout
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'SIGNED_OUT' || !session) {
-          navigate('/auth');
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    initialize();
+  }, []);
 
   const loadUserData = async (userId: string) => {
     try {
@@ -176,7 +147,7 @@ const Index = () => {
         body: JSON.stringify(newData)
       })
       if (!resp.ok) throw new Error('Falha ao importar dados')
-      await loadUserData(user?.id || '')
+      await loadUserData('')
       toast({
         title: "Dados importados com sucesso!",
         description: `${newData.clientes.length} clientes e ${newData.servicos.length} serviços foram salvos no Neon.`,
@@ -213,7 +184,6 @@ const Index = () => {
   }
 
   const handleReceiveCommission = async (servico: Servico, amount: number) => {
-    if (!user) return;
 
     try {
       const resp = await fetch('/api/commission', {
@@ -256,7 +226,6 @@ const Index = () => {
   };
 
   const handleUndoCommission = async (servicoId: number) => {
-    if (!user) return;
 
     try {
       const servico = businessData.servicos.find(s => s.id === servicoId);
@@ -296,13 +265,7 @@ const Index = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: "Logout realizado",
-      description: "Você foi desconectado com sucesso.",
-    });
-  };
+  const handleLogout = async () => {};
 
   const renderActiveTab = () => {
     switch (activeTab) {
@@ -341,23 +304,12 @@ const Index = () => {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Carregando dados do usuário...</p>
-        </div>
-      </div>
-    );
-  }
+  
 
   return (
     <div className="min-h-screen bg-background">
       <Header 
         onImportData={() => setShowImportDialog(true)} 
-        onLogout={handleLogout}
-        userEmail={user.email}
       />
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
       

@@ -15,10 +15,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return
     }
 
-    await sql.begin(async (trx) => {
-      await trx`DELETE FROM public.comissoes WHERE servico_id = ${servicoId} AND status = ${'recebido'}`
-      await trx`UPDATE public.servicos SET comissao_recebida = 0 WHERE id = ${servicoId}`
-    })
+    await sql`DELETE FROM public.comissoes WHERE servico_id = ${servicoId} AND status = ${'recebido'}`
+    await sql`UPDATE public.servicos SET comissao_recebida = 0 WHERE id = ${servicoId}`
 
     res.status(200).json({ ok: true })
   } catch (e: any) {

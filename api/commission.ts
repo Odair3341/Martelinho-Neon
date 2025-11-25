@@ -17,10 +17,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const dataRecebimento = date || new Date().toISOString().slice(0, 10)
 
-    await sql.begin(async (trx) => {
-      await trx`INSERT INTO public.comissoes (servico_id, valor, data_recebimento, status) VALUES (${servicoId}, ${amount}, ${dataRecebimento}, ${'recebido'})`
-      await trx`UPDATE public.servicos SET comissao_recebida = COALESCE(comissao_recebida, 0) + ${amount} WHERE id = ${servicoId}`
-    })
+    await sql`INSERT INTO public.comissoes (servico_id, valor, data_recebimento, status) VALUES (${servicoId}, ${amount}, ${dataRecebimento}, ${'recebido'})`
+    await sql`UPDATE public.servicos SET comissao_recebida = COALESCE(comissao_recebida, 0) + ${amount} WHERE id = ${servicoId}`
 
     res.status(200).json({ ok: true, data_recebimento: dataRecebimento })
   } catch (e: any) {
