@@ -164,6 +164,49 @@ const Index = () => {
 
   const handleUpdateData = async (newData: BusinessData) => {
     const oldData = businessData
+
+    const servicosAntes = new Set(oldData.servicos.map(s => s.id))
+    const adicionados = newData.servicos.filter(s => !servicosAntes.has(s.id))
+
+    if (adicionados.length === 1 && newData.clientes.length === oldData.clientes.length && newData.despesas.length === oldData.despesas.length && newData.comissoes.length === oldData.comissoes.length) {
+      const novo = adicionados[0]
+      try {
+        const resp = await fetch('/api/service-create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            data_servico: novo.data_servico,
+            veiculo: novo.veiculo,
+            placa: novo.placa,
+            valor_bruto: novo.valor_bruto,
+            porcentagem_comissao: novo.porcentagem_comissao,
+            observacao: novo.observacao,
+            cliente_id: novo.cliente_id
+          })
+        })
+        if (!resp.ok) throw new Error('Falha ao criar serviço')
+        const json = await resp.json()
+        const idReal = json.id
+
+        const atualizado = {
+          ...newData,
+          servicos: newData.servicos.map(s => s.id === novo.id ? { ...s, id: idReal } : s),
+          metadata: { ...newData.metadata, totalServicos: newData.servicos.length }
+        }
+        setBusinessData(atualizado)
+        toast({ title: 'Serviço criado!', description: 'O novo serviço foi salvo no Neon.' })
+        return
+      } catch (error: any) {
+        console.error('Erro ao criar serviço:', error)
+        toast({
+          title: 'Erro ao salvar',
+          description: `Houve um problema ao salvar o novo serviço: ${error?.message || 'Erro desconhecido'}.`,
+          variant: 'destructive',
+        })
+        return
+      }
+    }
+
     setBusinessData(newData)
     try {
       const resp = await fetch('/api/import', {
