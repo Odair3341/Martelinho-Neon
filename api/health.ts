@@ -10,7 +10,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { sql } = await import('./_db.js')
     const rows = await sql`SELECT 1 AS ok` as { ok: number }[]
-    res.status(200).json({ ok: true, hasEnv: true, result: rows[0]?.ok === 1 })
+
+    const expected = ['clientes','servicos','despesas','comissoes']
+    const tbls = await sql`SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = ANY(${expected})` as { table_name: string }[]
+    const present = tbls.map(t => t.table_name)
+    const missing = expected.filter(n => !present.includes(n))
+
+    res.status(200).json({ ok: true, hasEnv: true, result: rows[0]?.ok === 1, tables_present: present, tables_missing: missing })
   } catch (e: any) {
     res.status(500).json({ ok: false, hasEnv: true, error: e?.message || 'Health check failed' })
   }
