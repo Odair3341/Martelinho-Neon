@@ -28,14 +28,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const porcentagem = typeof body.porcentagem_comissao === 'string' ? Number(body.porcentagem_comissao) : body.porcentagem_comissao
     const clienteId = typeof body.cliente_id === 'string' ? Number(body.cliente_id) : body.cliente_id
 
-    const rows = await sql<{ id: number }[]>`
+    const rows = await sql`
       INSERT INTO public.servicos (
         data_servico, veiculo, placa, valor_bruto, porcentagem_comissao, observacao,
         valor_pago, quitado, comissao_recebida, cliente_id
       ) VALUES (
         ${body.data_servico}, ${body.veiculo}, ${body.placa}, ${valorBruto}, ${porcentagem}, ${body.observacao || ''},
         ${0}, ${false}, ${0}, ${clienteId}
-      ) RETURNING id`
+      ) RETURNING id` as { id: number }[]
 
     const insertedId = rows[0]?.id
     res.status(200).json({ ok: true, id: insertedId })
