@@ -157,11 +157,21 @@ const Index = () => {
         body: JSON.stringify(newData)
       })
       if (!resp.ok) throw new Error('Falha ao importar dados')
+      const result = await resp.json()
       await loadUserData('')
-      toast({
-        title: "Dados importados com sucesso!",
-        description: `${newData.clientes.length} clientes e ${newData.servicos.length} serviços foram salvos no Neon.`,
-      })
+      if (result?.ok) {
+        toast({
+          title: "Dados importados com sucesso!",
+          description: `${newData.clientes.length} clientes e ${newData.servicos.length} serviços foram salvos no Neon.`,
+        })
+      } else {
+        const count = Array.isArray(result?.errors) ? result.errors.length : 0
+        toast({
+          title: "Importação parcial",
+          description: count > 0 ? `Alguns registros falharam (${count}). Os demais foram salvos.` : 'Importação parcial concluída.',
+        })
+        console.error('Import errors:', result?.errors)
+      }
     } catch (error: any) {
       console.error('Error importing data:', error)
       toast({
