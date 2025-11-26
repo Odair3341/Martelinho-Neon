@@ -40,7 +40,17 @@ const Index = () => {
   useEffect(() => {
     const initialize = async () => {
       try {
-        await loadUserData('');
+        const healthResp = await fetch('/api/health')
+        if (healthResp.ok) {
+          const health = await healthResp.json()
+          if (health?.ok && health?.hasEnv && health?.result) {
+            await loadUserData('')
+          } else {
+            throw new Error('Ambiente sem DATABASE_URL ou conexão indisponível')
+          }
+        } else {
+          throw new Error('Falha no health check')
+        }
       } finally {
         setLoading(false);
       }
