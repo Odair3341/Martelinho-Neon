@@ -40,10 +40,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     for (let i = 0; i < servicos.length; i++) {
       const s = servicos[i]
       try {
-        const valorBruto = typeof s.valor_bruto === 'string' ? Number(s.valor_bruto) : s.valor_bruto
-        const porcentagem = typeof s.porcentagem_comissao === 'string' ? Number(s.porcentagem_comissao) : s.porcentagem_comissao
-        const valorPago = typeof s.valor_pago === 'string' ? Number(s.valor_pago) : s.valor_pago
-        const comissaoRecebida = typeof s.comissao_recebida === 'string' ? Number(s.comissao_recebida) : s.comissao_recebida
+        const parseNumber = (v: any) => {
+          const n = typeof v === 'string' ? Number(v) : v
+          return Number.isFinite(n) ? n : 0
+        }
+        const valorBruto = parseNumber(s.valor_bruto)
+        const porcentagem = parseNumber(s.porcentagem_comissao)
+        const valorPago = parseNumber(s.valor_pago)
+        const comissaoRecebida = parseNumber(s.comissao_recebida)
         const clienteId = typeof s.cliente_id === 'string' ? Number(s.cliente_id) : s.cliente_id
 
         if (typeof s.id === 'number') {
@@ -83,9 +87,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const d = despesas[i]
       try {
         const valor = typeof d.valor === 'string' ? Number(d.valor) : d.valor
+        const parsedValor = Number.isFinite(valor) ? valor : 0
         if (typeof d.id === 'number') {
           await sql`INSERT INTO public.despesas (id, descricao, valor, data_vencimento, pago)
-                    VALUES (${d.id}, ${d.descricao}, ${valor}, ${d.data_vencimento}, ${d.pago})
+                    VALUES (${d.id}, ${d.descricao}, ${parsedValor}, ${d.data_vencimento}, ${d.pago})
                     ON CONFLICT (id) DO UPDATE SET
                       descricao = EXCLUDED.descricao,
                       valor = EXCLUDED.valor,
@@ -93,7 +98,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                       pago = EXCLUDED.pago`
         } else {
           await sql`INSERT INTO public.despesas (descricao, valor, data_vencimento, pago)
-                    VALUES (${d.descricao}, ${valor}, ${d.data_vencimento}, ${d.pago})`
+                    VALUES (${d.descricao}, ${parsedValor}, ${d.data_vencimento}, ${d.pago})`
         }
       } catch (e: any) {
         errors.push({ table: 'despesas', index: i, message: e?.message || 'Erro ao inserir despesa' })
@@ -104,10 +109,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const c = comissoes[i]
       try {
         const valor = typeof c.valor === 'string' ? Number(c.valor) : c.valor
+        const parsedValor = Number.isFinite(valor) ? valor : 0
         const servicoId = typeof c.servico_id === 'string' ? Number(c.servico_id) : c.servico_id
         if (typeof c.id === 'number') {
           await sql`INSERT INTO public.comissoes (id, servico_id, valor, data_recebimento, status)
-                    VALUES (${c.id}, ${servicoId}, ${valor}, ${c.data_recebimento}, ${c.status})
+                    VALUES (${c.id}, ${servicoId}, ${parsedValor}, ${c.data_recebimento}, ${c.status})
                     ON CONFLICT (id) DO UPDATE SET
                       servico_id = EXCLUDED.servico_id,
                       valor = EXCLUDED.valor,
@@ -115,7 +121,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                       status = EXCLUDED.status`
         } else {
           await sql`INSERT INTO public.comissoes (servico_id, valor, data_recebimento, status)
-                    VALUES (${servicoId}, ${valor}, ${c.data_recebimento}, ${c.status})`
+                    VALUES (${servicoId}, ${parsedValor}, ${c.data_recebimento}, ${c.status})`
         }
       } catch (e: any) {
         errors.push({ table: 'comissoes', index: i, message: e?.message || 'Erro ao inserir comissão' })
@@ -127,12 +133,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await sql`SELECT setval(pg_get_serial_sequence('public.despesas','id'), COALESCE((SELECT MAX(id) FROM public.despesas), 1))`
     await sql`SELECT setval(pg_get_serial_sequence('public.comissoes','id'), COALESCE((SELECT MAX(id) FROM public.comissoes), 1))`
 
-    if (errors.length > 0) {
-      res.status(400).json({ ok: false, errors })
-      return
-    }
-
-    res.status(200).json({ ok: true })
+    res.status(200).json({ ok: errors.length === 0, errors })
   } catch (e: any) {
     res.status(500).json({ error: e?.message || 'Erro ao importar dados' })
   }
