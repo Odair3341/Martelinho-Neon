@@ -25,6 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     for (let i = 0; i < clientes.length; i++) {
       const c = clientes[i]
       try {
+        if (typeof c.id === 'number') {
           await sql`INSERT INTO public.clientes (id, nome, telefone, email, endereco, cpf)
                     VALUES (${c.id}, ${c.nome}, ${c.telefone || ''}, ${c.email || ''}, ${c.endereco || ''}, ${c.cpf || ''})
                     ON CONFLICT (id) DO UPDATE SET 
