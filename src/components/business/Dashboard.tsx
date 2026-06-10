@@ -27,8 +27,15 @@ export const Dashboard = ({ data }: DashboardProps) => {
   const totalComissoesCalculadas = data.servicos.reduce((acc, servico) => acc + (servico.valor_bruto * servico.porcentagem_comissao / 100), 0);
   const valorAReceber = totalComissoesCalculadas - totalComissoesRecebidas;
   
+  const parseDateToTime = (dateString: string) => {
+    if (!dateString) return 0;
+    const datePart = dateString.includes('T') ? dateString.split('T')[0] : (dateString.includes(' ') ? dateString.split(' ')[0] : dateString);
+    const date = new Date(datePart + 'T00:00:00');
+    return isNaN(date.getTime()) ? new Date(dateString).getTime() || 0 : date.getTime();
+  };
+
   const servicosRecentes = data.servicos
-    .sort((a, b) => new Date(b.data_servico + 'T00:00:00').getTime() - new Date(a.data_servico + 'T00:00:00').getTime())
+    .sort((a, b) => parseDateToTime(b.data_servico) - parseDateToTime(a.data_servico))
     .slice(0, 5);
   
   // Cálculos para despesas
@@ -47,8 +54,22 @@ export const Dashboard = ({ data }: DashboardProps) => {
   };
 
   const roundCurrency = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
-  const formatDate = (dateString: string) => {
-    return new Date(dateString + 'T00:00:00').toLocaleDateString('pt-BR');
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return '-';
+    try {
+      const datePart = dateString.includes('T') 
+        ? dateString.split('T')[0] 
+        : (dateString.includes(' ') ? dateString.split(' ')[0] : dateString);
+      const date = new Date(datePart + 'T00:00:00');
+      if (isNaN(date.getTime())) {
+        const fallback = new Date(dateString);
+        if (isNaN(fallback.getTime())) return '-';
+        return fallback.toLocaleDateString('pt-BR');
+      }
+      return date.toLocaleDateString('pt-BR');
+    } catch {
+      return '-';
+    }
   };
 
   return (
