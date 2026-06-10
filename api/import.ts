@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     type Body = {
-      clientes?: { id?: number; nome: string }[]
+      clientes?: { id?: number; nome: string; telefone?: string; email?: string; endereco?: string; cpf?: string }[]
       servicos?: { id?: number; data_servico: string; veiculo: string; placa: string; valor_bruto: number | string; porcentagem_comissao: number | string; observacao: string; valor_pago: number | string; quitado: boolean; comissao_recebida: number | string; cliente_id: number | string }[]
       despesas?: { id?: number; descricao: string; valor: number | string; data_vencimento: string; pago: boolean }[]
       comissoes?: { id?: number; servico_id: number | string; valor: number | string; data_recebimento: string; status: string }[]
@@ -25,12 +25,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     for (let i = 0; i < clientes.length; i++) {
       const c = clientes[i]
       try {
-        if (typeof c.id === 'number') {
-          await sql`INSERT INTO public.clientes (id, nome)
-                    VALUES (${c.id}, ${c.nome})
-                    ON CONFLICT (id) DO UPDATE SET nome = EXCLUDED.nome`
+          await sql`INSERT INTO public.clientes (id, nome, telefone, email, endereco, cpf)
+                    VALUES (${c.id}, ${c.nome}, ${c.telefone || ''}, ${c.email || ''}, ${c.endereco || ''}, ${c.cpf || ''})
+                    ON CONFLICT (id) DO UPDATE SET 
+                      nome = EXCLUDED.nome,
+                      telefone = EXCLUDED.telefone,
+                      email = EXCLUDED.email,
+                      endereco = EXCLUDED.endereco,
+                      cpf = EXCLUDED.cpf`
         } else {
-          await sql`INSERT INTO public.clientes (nome) VALUES (${c.nome})`
+          await sql`INSERT INTO public.clientes (nome, telefone, email, endereco, cpf) 
+                    VALUES (${c.nome}, ${c.telefone || ''}, ${c.email || ''}, ${c.endereco || ''}, ${c.cpf || ''})`
         }
       } catch (e: any) {
         errors.push({ table: 'clientes', index: i, message: e?.message || 'Erro ao inserir cliente' })

@@ -19,6 +19,8 @@ export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
   const [newClienteCpf, setNewClienteCpf] = useState("");
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
 
+  const activeClientsCount = data.clientes.filter(c => getClientStats(c.id).totalServicos > 0).length;
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -185,7 +187,7 @@ export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
                         <p className="text-sm text-muted-foreground mt-1">📍 {cliente.endereco}</p>
                       )}
                       <p className="text-sm text-muted-foreground mt-1">
-                        Cliente desde: {cliente.data_cadastro ? new Date(cliente.data_cadastro).toLocaleDateString('pt-BR') : '14/08/2025'}
+                        Cliente desde: {cliente.data_cadastro ? new Date(cliente.data_cadastro).toLocaleDateString('pt-BR') : '-'}
                       </p>
                     </div>
                     <Button
@@ -247,7 +249,7 @@ export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
                 <DollarSign className="h-6 w-6 text-accent" />
               </div>
               <div>
-                <p className="text-2xl font-bold">1</p>
+                <p className="text-2xl font-bold">{activeClientsCount}</p>
                 <p className="text-sm text-muted-foreground">Clientes ativos</p>
               </div>
             </div>

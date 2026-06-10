@@ -21,6 +21,10 @@ export type Database = {
           nome: string
           updated_at: string | null
           user_id: string | null
+          telefone: string | null
+          email: string | null
+          endereco: string | null
+          cpf: string | null
         }
         Insert: {
           created_at?: string | null
@@ -28,6 +32,10 @@ export type Database = {
           nome: string
           updated_at?: string | null
           user_id?: string | null
+          telefone?: string | null
+          email?: string | null
+          endereco?: string | null
+          cpf?: string | null
         }
         Update: {
           created_at?: string | null
@@ -35,6 +43,10 @@ export type Database = {
           nome?: string
           updated_at?: string | null
           user_id?: string | null
+          telefone?: string | null
+          email?: string | null
+          endereco?: string | null
+          cpf?: string | null
         }
         Relationships: []
       }

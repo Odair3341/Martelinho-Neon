@@ -68,10 +68,10 @@ const Index = () => {
       const mappedClientes = (apiData.clientes || []).map((cliente: any) => ({
         id: cliente.id,
         nome: cliente.nome,
-        telefone: '', // Not in current schema
-        email: '', // Not in current schema
-        endereco: '', // Not in current schema
-        cpf: '', // Not in current schema
+        telefone: cliente.telefone || '',
+        email: cliente.email || '',
+        endereco: cliente.endereco || '',
+        cpf: cliente.cpf || '',
         data_cadastro: cliente.created_at || ''
       }));
 

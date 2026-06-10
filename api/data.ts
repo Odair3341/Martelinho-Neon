@@ -8,7 +8,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const clientes = await sql`SELECT id, nome, created_at FROM public.clientes ORDER BY nome`
+    const clientes = await sql`SELECT id, nome, created_at, telefone, email, endereco, cpf FROM public.clientes ORDER BY nome`
     const servicos = await sql`SELECT id, data_servico, veiculo, placa, valor_bruto, porcentagem_comissao, observacao, valor_pago, quitado, comissao_recebida, cliente_id FROM public.servicos ORDER BY data_servico DESC`
     const despesas = await sql`SELECT id, descricao, valor, data_vencimento, pago FROM public.despesas ORDER BY data_vencimento DESC`
     const comissoes = await sql`SELECT id, servico_id, valor, data_recebimento, status, created_at, updated_at FROM public.comissoes ORDER BY data_recebimento DESC`
