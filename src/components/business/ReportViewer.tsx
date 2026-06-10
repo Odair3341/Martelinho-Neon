@@ -30,8 +30,27 @@ export const ReportViewer = ({ open, onOpenChange, data, reportType, dataInicio,
     }).format(value);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString + 'T00:00:00').toLocaleDateString('pt-BR');
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return '-';
+    try {
+      // Pega apenas a parte YYYY-MM-DD caso venha com hora (T ou espaço)
+      const datePart = dateString.includes('T') 
+        ? dateString.split('T')[0] 
+        : (dateString.includes(' ') ? dateString.split(' ')[0] : dateString);
+      
+      const date = new Date(datePart + 'T00:00:00');
+      if (isNaN(date.getTime())) {
+        const fallback = new Date(dateString);
+        if (isNaN(fallback.getTime())) {
+          return '-';
+        }
+        return fallback.toLocaleDateString('pt-BR');
+      }
+      return date.toLocaleDateString('pt-BR');
+    } catch (error) {
+      console.error('Erro ao formatar data:', error);
+      return '-';
+    }
   };
 
   const generatePDF = async () => {

@@ -27,10 +27,28 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
 
   // Arredondamento monetário (2 casas)
   const roundCurrency = (value: number) => Math.round(value * 100) / 100;
-  // Função para formatar data
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
+  // Função para formatar data de forma robusta e evitar fuso horário incorreto
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return '-';
+    try {
+      // Pega apenas a parte YYYY-MM-DD caso venha com hora (T ou espaço)
+      const datePart = dateString.includes('T') 
+        ? dateString.split('T')[0] 
+        : (dateString.includes(' ') ? dateString.split(' ')[0] : dateString);
+      
+      const date = new Date(datePart + 'T00:00:00');
+      if (isNaN(date.getTime())) {
+        const fallback = new Date(dateString);
+        if (isNaN(fallback.getTime())) {
+          return '-';
+        }
+        return fallback.toLocaleDateString('pt-BR');
+      }
+      return date.toLocaleDateString('pt-BR');
+    } catch (error) {
+      console.error('Erro ao formatar data:', error);
+      return '-';
+    }
   };
 
   // Função para obter o nome do cliente
@@ -361,13 +379,10 @@ export const RelatoriosTab = ({ data }: RelatoriosTabProps) => {
                     return (
                       <TableRow key={servico.id} className="border-gray-700">
                         <TableCell className="text-gray-300">
-                          {new Date(servico.data_servico + 'T00:00:00').toLocaleDateString('pt-BR')}
+                          {formatDate(servico.data_servico)}
                         </TableCell>
                         <TableCell className="text-gray-300">
-                          {servico.data_recebimento_comissao ? 
-                            new Date(servico.data_recebimento_comissao + 'T00:00:00').toLocaleDateString('pt-BR') : 
-                            '-'
-                          }
+                          {formatDate(servico.data_recebimento_comissao)}
                         </TableCell>
                         <TableCell className="text-gray-300">
                           {cliente?.nome || 'Cliente não encontrado'}
