@@ -150,7 +150,7 @@ export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
     setSelectedClient(null);
   };
 
-  const getClientStats = (clienteId: number | string) => {
+  function getClientStats(clienteId: number | string) {
     const servicosCliente = data.servicos.filter(s => s.cliente_id === clienteId);
     const totalServicos = servicosCliente.length;
     const totalFaturamento = servicosCliente.reduce((acc, s) => acc + s.valor_bruto, 0);
@@ -159,7 +159,7 @@ export const ClientesTab = ({ data, onUpdateData }: ClientesTabProps) => {
       : null;
 
     return { totalServicos, totalFaturamento, ultimoServico };
-  };
+  }
 
   return (
     <div className="space-y-6">
