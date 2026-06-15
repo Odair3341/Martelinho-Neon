@@ -39,7 +39,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const insertedId = rows[0]?.id
     res.status(200).json({ ok: true, id: insertedId })
-  } catch (e: any) {
-    res.status(500).json({ error: e?.message || 'Erro ao criar serviço' })
+  } catch (e) {
+    const error = e as Error
+    res.status(500).json({ error: error?.message || 'Erro ao criar serviço' })
   }
 }

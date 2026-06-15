@@ -34,7 +34,7 @@ const Auth = () => {
       });
       
       setIsForgotPassword(false);
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Erro",
         description: "Erro ao enviar email de recuperação. Verifique se o email está correto.",
@@ -82,16 +82,17 @@ const Auth = () => {
         // Redirect to main page after successful login
         navigate("/");
       }
-    } catch (error: any) {
+    } catch (error) {
       let errorMessage = "Erro inesperado";
+      const err = error as Error;
       
-      if (error.message.includes("Invalid login credentials")) {
+      if (err.message.includes("Invalid login credentials")) {
         errorMessage = "Email ou senha incorretos";
-      } else if (error.message.includes("User already registered")) {
+      } else if (err.message.includes("User already registered")) {
         errorMessage = "Este email já está cadastrado. Faça login.";
-      } else if (error.message.includes("Password should be at least")) {
+      } else if (err.message.includes("Password should be at least")) {
         errorMessage = "A senha deve ter pelo menos 6 caracteres";
-      } else if (error.message.includes("Unable to validate email")) {
+      } else if (err.message.includes("Unable to validate email")) {
         errorMessage = "Email inválido";
       }
       

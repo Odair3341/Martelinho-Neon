@@ -19,7 +19,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const comissoes = await sql`SELECT id, servico_id, valor, data_recebimento, status, created_at, updated_at FROM public.comissoes ORDER BY data_recebimento DESC`
 
     res.status(200).json({ clientes, servicos, despesas, comissoes })
-  } catch (e: any) {
-    res.status(500).json({ error: e?.message || 'Erro ao carregar dados' })
+  } catch (e) {
+    const error = e as Error
+    res.status(500).json({ error: error?.message || 'Erro ao carregar dados' })
   }
 }

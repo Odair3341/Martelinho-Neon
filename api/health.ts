@@ -17,7 +17,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const missing = expected.filter(n => !present.includes(n))
 
     res.status(200).json({ ok: true, hasEnv: true, result: rows[0]?.ok === 1, tables_present: present, tables_missing: missing })
-  } catch (e: any) {
-    res.status(500).json({ ok: false, hasEnv: true, error: e?.message || 'Health check failed' })
+  } catch (e) {
+    const error = e as Error
+    res.status(500).json({ ok: false, hasEnv: true, error: error?.message || 'Health check failed' })
   }
 }

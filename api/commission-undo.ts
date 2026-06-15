@@ -19,7 +19,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await sql`UPDATE public.servicos SET comissao_recebida = 0 WHERE id = ${servicoId}`
 
     res.status(200).json({ ok: true })
-  } catch (e: any) {
-    res.status(500).json({ error: e?.message || 'Erro ao desfazer comissão' })
+  } catch (e) {
+    const error = e as Error
+    res.status(500).json({ error: error?.message || 'Erro ao desfazer comissão' })
   }
 }

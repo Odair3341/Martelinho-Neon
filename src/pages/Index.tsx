@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { BusinessData, Servico } from "@/types/business";
 import { Header } from "@/components/business/Header";
@@ -37,35 +37,14 @@ const Index = () => {
     }
   });
 
-  useEffect(() => {
-    const initialize = async () => {
-      try {
-        const healthResp = await fetch('/api/health')
-        if (healthResp.ok) {
-          const health = await healthResp.json()
-          if (health?.ok && health?.hasEnv && health?.result) {
-            await loadUserData('')
-          } else {
-            throw new Error('Ambiente sem DATABASE_URL ou conexão indisponível')
-          }
-        } else {
-          throw new Error('Falha no health check')
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    initialize();
-  }, []);
-
-  const loadUserData = async (userId: string) => {
+  const loadUserData = useCallback(async (userId: string) => {
     try {
       const resp = await fetch('/api/data');
       if (!resp.ok) throw new Error('Falha ao carregar dados');
       const apiData = await resp.json();
 
       // Map database structure to expected interface
-      const mappedClientes = (apiData.clientes || []).map((cliente: any) => ({
+      const mappedClientes = (apiData.clientes || []).map((cliente: { id: string | number; nome: string; telefone?: string; email?: string; endereco?: string; cpf?: string; created_at?: string }) => ({
         id: cliente.id,
         nome: cliente.nome,
         telefone: cliente.telefone || '',
@@ -75,7 +54,7 @@ const Index = () => {
         data_cadastro: cliente.created_at || ''
       }));
 
-      const mappedComissoes = (apiData.comissoes || []).map((comissao: any) => ({
+      const mappedComissoes = (apiData.comissoes || []).map((comissao: { id: number; servico_id: number; valor: string | number; data_recebimento: string; status: string; created_at?: string; updated_at?: string }) => ({
         id: comissao.id,
         servico_id: comissao.servico_id,
         valor: Number(comissao.valor),
@@ -85,7 +64,7 @@ const Index = () => {
         updated_at: comissao.updated_at
       }));
 
-      const mappedServicos = (apiData.servicos || []).map((servico: any) => {
+      const mappedServicos = (apiData.servicos || []).map((servico: { id: string | number; data_servico: string; veiculo: string; placa: string; valor_bruto: string | number; porcentagem_comissao: string | number; observacao?: string; valor_pago: string | number; quitado: boolean; comissao_recebida: string | number; cliente_id: string | number }) => {
         // Buscar comissão recebida para este serviço para inferir a data de recebimento
         const comissaoRecebida = mappedComissoes.find(c => 
           c.servico_id === servico.id && c.status === 'recebido'
@@ -107,7 +86,7 @@ const Index = () => {
         };
       });
 
-      const mappedDespesas = (apiData.despesas || []).map((despesa: any) => ({
+      const mappedDespesas = (apiData.despesas || []).map((despesa: { id: string | number; descricao: string; valor: string | number; data_vencimento: string; pago: boolean }) => ({
         id: despesa.id,
         descricao: despesa.descricao,
         valor: Number(despesa.valor),
@@ -139,15 +118,37 @@ const Index = () => {
           description: `${loadedData.clientes.length} clientes e ${loadedData.servicos.length} serviços carregados.`,
         });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error loading data:', error);
+      const err = error as Error;
       toast({
         title: "Erro ao carregar dados",
-        description: "Não foi possível carregar seus dados.",
+        description: err.message || "Não foi possível carregar seus dados.",
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        const healthResp = await fetch('/api/health')
+        if (healthResp.ok) {
+          const health = await healthResp.json()
+          if (health?.ok && health?.hasEnv && health?.result) {
+            await loadUserData('')
+          } else {
+            throw new Error('Ambiente sem DATABASE_URL ou conexão indisponível')
+          }
+        } else {
+          throw new Error('Falha no health check')
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    initialize();
+  }, [loadUserData]);
 
   const handleImportData = async (newData: BusinessData) => {
     try {
@@ -172,11 +173,12 @@ const Index = () => {
         })
         console.error('Import errors:', result?.errors)
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error importing data:', error)
+      const err = error as Error
       toast({
         title: "Erro ao importar dados",
-        description: "Não foi possível salvar os dados importados.",
+        description: err?.message || "Não foi possível salvar os dados importados.",
         variant: "destructive",
       })
     }
@@ -216,11 +218,12 @@ const Index = () => {
         setBusinessData(atualizado)
         toast({ title: 'Serviço criado!', description: 'O novo serviço foi salvo no Neon.' })
         return
-      } catch (error: any) {
+      } catch (error) {
         console.error('Erro ao criar serviço:', error)
+        const err = error as Error
         toast({
           title: 'Erro ao salvar',
-          description: `Houve um problema ao salvar o novo serviço: ${error?.message || 'Erro desconhecido'}.`,
+          description: `Houve um problema ao salvar o novo serviço: ${err?.message || 'Erro desconhecido'}.`,
           variant: 'destructive',
         })
         return
@@ -235,11 +238,13 @@ const Index = () => {
         body: JSON.stringify(newData)
       })
       if (!resp.ok) throw new Error('Falha ao salvar dados')
-    } catch (error: any) {
+      await loadUserData('')
+    } catch (error) {
       console.error('Erro detalhado ao salvar dados:', error)
+      const err = error as Error
       toast({
         title: "Erro ao salvar",
-        description: `Houve um problema ao salvar os dados: ${error?.message || 'Erro desconhecido'}. Verifique o console para mais detalhes.`,
+        description: `Houve um problema ao salvar os dados: ${err?.message || 'Erro desconhecido'}. Verifique o console para mais detalhes.`,
         variant: "destructive",
       })
       setBusinessData(oldData)
@@ -278,11 +283,12 @@ const Index = () => {
         title: "Comissão recebida!",
         description: `R$ ${amount.toFixed(2)} foi marcado como recebido.`,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erro ao receber comissão:', error);
+      const err = error as Error;
       toast({
         title: "Erro ao receber comissão",
-        description: "Não foi possível marcar a comissão como recebida.",
+        description: err?.message || "Não foi possível marcar a comissão como recebida.",
         variant: "destructive",
       });
     }
@@ -318,11 +324,12 @@ const Index = () => {
         title: "Comissão desfeita!",
         description: "O recebimento da comissão foi desfeito.",
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erro ao desfazer comissão:', error);
+      const err = error as Error;
       toast({
         title: "Erro ao desfazer comissão",
-        description: "Não foi possível desfazer o recebimento da comissão.",
+        description: err?.message || "Não foi possível desfazer o recebimento da comissão.",
         variant: "destructive",
       });
     }

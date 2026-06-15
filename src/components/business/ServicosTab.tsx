@@ -78,7 +78,7 @@ export const ServicosTab = ({ data, onUpdateData }: ServicosTabProps) => {
     const newService: Servico = {
       id: 'temp_' + Date.now(),
       data_servico: fixTimezoneDate(formData.data_servico),
-      cliente_id: clienteIdValue as any,
+      cliente_id: clienteIdValue,
       veiculo: formData.veiculo,
       placa: formData.placa.toUpperCase(),
       valor_bruto: valorBruto,
