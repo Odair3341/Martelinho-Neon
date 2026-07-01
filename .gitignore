@@ -15,3 +15,11 @@ backup_*.json
 # Sensitive artifacts
 boletos_teste/
 firebase-applet-config.json
+
+# Debug / temporary HTML tools (contain hardcoded API keys)
+check-data.html
+seed-data.html
+test-tables.html
+
+# Testsprite generated test artifacts
+testsprite_tests/
