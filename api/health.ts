@@ -1,6 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+
   const hasEnv = !!process.env.DATABASE_URL
   if (!hasEnv) {
     res.status(200).json({ ok: false, hasEnv: false, error: 'Missing DATABASE_URL' })
