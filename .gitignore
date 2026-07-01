@@ -7,3 +7,11 @@ coverage/
 /.vscode/
 /.idea/
 *.local.*
+
+# Database backups
+backup-*.json
+backup_*.json
+
+# Sensitive artifacts
+boletos_teste/
+firebase-applet-config.json
