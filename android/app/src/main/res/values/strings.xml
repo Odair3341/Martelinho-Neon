@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Martelinho Gestão</string>
+    <string name="title_activity_main">Martelinho Gestão</string>
+    <string name="package_name">com.martelinho.oliveira</string>
+    <string name="custom_url_scheme">com.martelinho.oliveira</string>
+</resources>

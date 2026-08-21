@@ -7,3 +7,33 @@ coverage/
 /.vscode/
 /.idea/
 *.local.*
+
+# Android signing secrets (NEVER commit)
+*.keystore
+*.jks
+android/keystore.properties
+android/keystore-info.txt
+android/local.properties
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Database backups
+backup-*.json
+backup_*.json
+
+# Reasonix tool internal files
+.reasonix/
+reasonix.toml
+
+# Sensitive artifacts
+boletos_teste/
+firebase-applet-config.json
+
+# Debug / temporary HTML tools (contain hardcoded API keys)
+check-data.html
+seed-data.html
+test-tables.html
+
+# Testsprite generated test artifacts
+testsprite_tests/

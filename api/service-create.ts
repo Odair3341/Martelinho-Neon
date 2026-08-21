@@ -2,6 +2,10 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { sql } from './_db.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
     return
