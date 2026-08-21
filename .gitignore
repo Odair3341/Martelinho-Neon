@@ -8,9 +8,23 @@ coverage/
 /.idea/
 *.local.*
 
+# Android signing secrets (NEVER commit)
+*.keystore
+*.jks
+android/keystore.properties
+android/keystore-info.txt
+android/local.properties
+
+# TypeScript build info
+*.tsbuildinfo
+
 # Database backups
 backup-*.json
 backup_*.json
+
+# Reasonix tool internal files
+.reasonix/
+reasonix.toml
 
 # Sensitive artifacts
 boletos_teste/
