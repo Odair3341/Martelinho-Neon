@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { Capacitor } from "@capacitor/core";
 import { BusinessData, Servico } from "@/types/business";
 import { Header } from "@/components/business/Header";
 import { Navigation } from "@/components/business/Navigation";
@@ -37,6 +38,7 @@ const Index = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [dataLoadedSuccessfully, setDataLoadedSuccessfully] = useState(false);
+  const [loadError, setLoadError] = useState<string>("");
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [businessData, setBusinessData] = useState<BusinessData>(EMPTY_DATA);
@@ -168,6 +170,7 @@ const Index = () => {
       console.error("Error loading data:", error);
       setDataLoadedSuccessfully(false);
       const err = error as Error;
+      setLoadError(err?.message || String(error));
       toast({
         title: "Erro ao carregar dados",
         description:
@@ -192,11 +195,13 @@ const Index = () => {
           );
         }
       } else {
-        throw new Error("Falha no health check");
+        throw new Error(`Falha no health check (HTTP ${healthResp.status})`);
       }
     } catch (err) {
       console.error("Initialization failed:", err);
       setDataLoadedSuccessfully(false);
+      const e = err as Error;
+      setLoadError(e?.message || String(err));
     } finally {
       setLoading(false);
     }
@@ -552,6 +557,17 @@ const Index = () => {
               Não foi possível carregar os dados. Isso pode ser uma oscilação
               temporária de rede. Seus dados estão seguros — tente novamente.
             </p>
+            {loadError && (
+              <div className="mt-3 rounded-md bg-muted p-3 text-left">
+                <p className="text-xs font-semibold text-foreground">Detalhe técnico:</p>
+                <p className="mt-1 break-all font-mono text-xs text-muted-foreground">
+                  {loadError}
+                </p>
+                <p className="mt-2 break-all font-mono text-xs text-muted-foreground">
+                  [nativo: {String(Capacitor.isNativePlatform())}]
+                </p>
+              </div>
+            )}
           </div>
           <Button
             onClick={initialize}
