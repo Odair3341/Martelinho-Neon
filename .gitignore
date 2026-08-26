@@ -13,6 +13,7 @@ coverage/
 *.jks
 android/keystore.properties
 android/keystore-info.txt
+android/keystore-base64.txt
 android/local.properties
 
 # TypeScript build info
