@@ -55,7 +55,14 @@ if (Capacitor.isNativePlatform() && API_BASE_URL) {
           responseHeaders.append(key, value)
         })
 
-        return new Response(res.data, {
+        // No Capacitor 7, res.data pode vir como objeto (já parseado) ou string.
+        // O Response exige string — serializa objetos para JSON válido.
+        const body =
+          typeof res.data === 'string'
+            ? res.data
+            : JSON.stringify(res.data ?? '')
+
+        return new Response(body, {
           status: res.status,
           headers: responseHeaders,
         })
