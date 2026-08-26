@@ -1,4 +1,4 @@
-# 📱 App Android (Google Play) — Guia de Publicação
+﻿# 📱 App Android (Google Play) — Guia de Publicação
 
 Este projeto agora pode ser empacotado como **app Android nativo** usando [Capacitor](https://capacitorjs.com) e publicado no **Google Play**.
 
@@ -124,6 +124,7 @@ npm run android:open
 
 | Problema | Causa provável | Solução |
 |---|---|---|
+| Vercel falha o deploy em ~7s | npm recusa instalar por conflito de peer deps (ERESOLVE) ou Node < 20.19 (Vite 8) | Já corrigido: `.npmrc` com `legacy-peer-deps=true` + `.nvmrc` (Node 22). Commit e push; o Vercel rebuilda |
 | App abre e mostra "Falha ao conectar ao banco" | `VITE_API_BASE_URL` ausente/errada ou Vercel offline | Verifique `https://martelinho-neon.vercel.app/api/health` no navegador |
 | Build falha com "SDK not found" | Sem Android SDK local | Use GitHub Actions (Opção A) |
 | Build do Actions falha no `cap sync` | Falta `npm run build` | O workflow já roda o build; verifique o log |
