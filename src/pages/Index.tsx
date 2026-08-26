@@ -572,7 +572,7 @@ const Index = () => {
       <Header onImportData={() => setShowImportDialog(true)} />
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <main className="container mx-auto px-6 py-8">{renderActiveTab()}</main>
+      <main className="container mx-auto px-4 pb-28 pt-6 md:px-6 md:pb-8 md:pt-8">{renderActiveTab()}</main>
 
       <ImportDialog
         open={showImportDialog}

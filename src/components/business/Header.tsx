@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Upload, Settings, Moon, Sun, Maximize, Edit, LogOut, User } from "lucide-react";
+import { Upload, Moon, Sun, Maximize, Edit, LogOut, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,16 +48,16 @@ export const Header = ({ onImportData, onLogout, userEmail }: HeaderProps) => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-strong">
-      <div className="container mx-auto px-6 py-4">
+    <header className="border-b border-white/10 bg-[linear-gradient(135deg,#06162f_0%,#0b2b59_58%,#8a6500_140%)] text-white shadow-strong">
+      <div className="container mx-auto px-4 py-3 md:px-6 md:py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+          <div className="flex min-w-0 items-center space-x-3 md:space-x-4">
              <div className="relative group">
-               <div className="p-3 bg-white/10 rounded-xl">
+               <div className="rounded-2xl border border-white/10 bg-white/10 p-1.5 backdrop-blur md:p-2">
                  <img 
                    src={currentLogo} 
                    alt="Oliveira Martelinho de Ouro" 
-                   className="h-24 w-24 object-contain rounded-lg"
+                   className="h-14 w-14 rounded-xl object-contain md:h-20 md:w-20"
                  />
                </div>
               <Button
@@ -70,17 +70,17 @@ export const Header = ({ onImportData, onLogout, userEmail }: HeaderProps) => {
                 <Edit className="h-3 w-3" />
               </Button>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold">Oliveira Martelinho de Ouro</h1>
-              <p className="text-primary-foreground/80 text-sm">Sistema Financeiro v1.0</p>
+            <div className="min-w-0">
+              <h1 className="truncate text-base font-bold tracking-tight md:text-2xl">Oliveira Martelinho de Ouro</h1>
+              <p className="text-xs text-white/65 md:text-sm">Gestão financeira e operacional</p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex shrink-0 items-center space-x-1.5 md:space-x-2">
             <Button 
               variant="secondary" 
               onClick={onImportData}
-              className="bg-white/20 hover:bg-white/30 text-primary-foreground border-white/30"
+              className="hidden border-white/15 bg-white/10 text-white hover:bg-white/20 md:inline-flex"
             >
               <Upload className="h-4 w-4 mr-2" />
               Importar JSON
@@ -89,7 +89,7 @@ export const Header = ({ onImportData, onLogout, userEmail }: HeaderProps) => {
             <Button
               variant="secondary"
               onClick={toggleFullscreen}
-              className="bg-white/20 hover:bg-white/30 text-primary-foreground border-white/30"
+              className="hidden border-white/15 bg-white/10 text-white hover:bg-white/20 md:inline-flex"
               title="Tela cheia"
             >
               <Maximize className="h-4 w-4" />
@@ -98,8 +98,8 @@ export const Header = ({ onImportData, onLogout, userEmail }: HeaderProps) => {
             <Button
               variant="secondary"
               onClick={toggleTheme}
-              className="bg-white/20 hover:bg-white/30 text-primary-foreground border-white/30"
-              title="Alternar tema"
+              className="h-10 w-10 rounded-xl border border-white/15 bg-white/10 p-0 text-white hover:bg-white/20"
+              title={theme === "light" ? "Ativar modo escuro" : "Ativar modo claro"}
             >
               {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </Button>

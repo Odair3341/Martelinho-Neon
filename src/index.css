@@ -75,22 +75,22 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 224 71% 4%;
+    --background: 222 47% 6%;
     --foreground: 210 40% 98%;
 
-    --card: 217 33% 6%;
+    --card: 220 36% 9%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 217 33% 6%;
+    --popover: 220 36% 9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 200 95% 60%;
+    --primary: 214 92% 58%;
     --primary-foreground: 224 71% 4%;
 
-    --secondary: 217 33% 8%;
+    --secondary: 218 31% 13%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217 33% 8%;
+    --muted: 218 31% 13%;
     --muted-foreground: 215 20% 65%;
 
     --accent: 43 96% 56%;
@@ -108,9 +108,9 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 218 27% 18%;
+    --input: 218 27% 18%;
+    --ring: 214 92% 58%;
 
     /* Dark theme gradients */
     --gradient-card: linear-gradient(145deg, hsl(217 33% 8% / 0.9), hsl(217 33% 6% / 0.6));
@@ -131,6 +131,30 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    min-width: 320px;
+    min-height: 100vh;
+    background-image: radial-gradient(circle at 50% -20%, hsl(var(--primary) / 0.08), transparent 38rem);
+    background-attachment: fixed;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+}
+
+@layer components {
+  .dark .shadow-lg,
+  .dark .shadow-md,
+  .dark .shadow-sm {
+    box-shadow: 0 16px 38px hsl(222 60% 2% / 0.32);
+  }
+
+  .dark [data-radix-popper-content-wrapper] {
+    color: hsl(var(--popover-foreground));
   }
 }

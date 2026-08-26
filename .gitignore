@@ -31,6 +31,9 @@ reasonix.toml
 boletos_teste/
 firebase-applet-config.json
 
+# APK de teste gerado localmente (binário grande, não vai para o Git)
+*.apk
+
 # Debug / temporary HTML tools (contain hardcoded API keys)
 check-data.html
 seed-data.html
